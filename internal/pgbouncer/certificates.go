@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -25,29 +25,29 @@ const (
 	tlsPrivateKeySecretKey  = corev1.TLSPrivateKeyKey
 
 	certBackendAuthorityAbsolutePath   = configDirectory + "/" + certBackendAuthorityProjectionPath
-	certBackendAuthorityProjectionPath = "~postgres-operator/backend-ca.crt"
+	certBackendAuthorityProjectionPath = "~ivory-operator/backend-ca.crt"
 
 	certFrontendAuthorityAbsolutePath  = configDirectory + "/" + certFrontendAuthorityProjectionPath
 	certFrontendPrivateKeyAbsolutePath = configDirectory + "/" + certFrontendPrivateKeyProjectionPath
 	certFrontendAbsolutePath           = configDirectory + "/" + certFrontendProjectionPath
 
-	certFrontendAuthorityProjectionPath  = "~postgres-operator/frontend-ca.crt"
-	certFrontendPrivateKeyProjectionPath = "~postgres-operator/frontend-tls.key"
-	certFrontendProjectionPath           = "~postgres-operator/frontend-tls.crt"
+	certFrontendAuthorityProjectionPath  = "~ivory-operator/frontend-ca.crt"
+	certFrontendPrivateKeyProjectionPath = "~ivory-operator/frontend-tls.key"
+	certFrontendProjectionPath           = "~ivory-operator/frontend-tls.crt"
 
 	certFrontendAuthoritySecretKey  = "pgbouncer-frontend.ca-roots"
 	certFrontendPrivateKeySecretKey = "pgbouncer-frontend.key"
 	certFrontendSecretKey           = "pgbouncer-frontend.crt"
 )
 
-// backendAuthority creates a volume projection of the PostgreSQL server
+// backendAuthority creates a volume projection of the IvorySQL server
 // certificate authority.
-func backendAuthority(postgres *corev1.SecretProjection) corev1.VolumeProjection {
+func backendAuthority(ivory *corev1.SecretProjection) corev1.VolumeProjection {
 	var items []corev1.KeyToPath
-	result := postgres.DeepCopy()
+	result := ivory.DeepCopy()
 
 	for i := range result.Items {
-		// The PostgreSQL server projection expects Path to match typical Keys.
+		// The IvorySQL server projection expects Path to match typical Keys.
 		if result.Items[i].Path == tlsAuthoritySecretKey {
 			result.Items[i].Path = certBackendAuthorityProjectionPath
 			items = append(items, result.Items[i])

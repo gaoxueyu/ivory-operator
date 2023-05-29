@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -20,8 +20,8 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/crunchydata/postgres-operator/internal/testing/cmp"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/testing/cmp"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func isUniqueAndSorted(slice []string) bool {
@@ -38,7 +38,7 @@ func isUniqueAndSorted(slice []string) bool {
 }
 
 func TestPermissions(t *testing.T) {
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	cluster.Default()
 
 	permissions := Permissions(cluster)

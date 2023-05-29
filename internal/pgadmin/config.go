@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -20,7 +20,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 const (
@@ -41,7 +41,7 @@ const (
 	dataMountPath = "/var/lib/pgadmin"
 
 	// ldapPasswordPath is the path for mounting the LDAP Bind Password
-	ldapPasswordPath         = "~postgres-operator/ldap-bind-password" /* #nosec */
+	ldapPasswordPath         = "~ivory-operator/ldap-bind-password" /* #nosec */
 	ldapPasswordAbsolutePath = configMountPath + "/" + ldapPasswordPath
 
 	// TODO(tjmoore4): The login and password implementation will be updated in
@@ -61,7 +61,7 @@ const (
 
 	settingsAbsolutePath   = configMountPath + "/" + settingsProjectionPath
 	settingsConfigMapKey   = "pgadmin-settings.json"
-	settingsProjectionPath = "~postgres-operator/pgadmin.json"
+	settingsProjectionPath = "~ivory-operator/pgadmin.json"
 
 	// startupMountPath is where to mount a temporary directory that is only
 	// writable during Pod initialization.
@@ -129,7 +129,7 @@ func startupCommand() []string {
 	// - https://docs.python.org/3/reference/simple_stmts.html#import
 	//
 	// DEFAULT_BINARY_PATHS contains the paths to various client tools. The "pg"
-	// key is for PostgreSQL. Use the latest version found in "/usr" or fallback
+	// key is for IvorySQL. Use the latest version found in "/usr" or fallback
 	// to the default of empty string.
 	// - https://github.com/pgadmin-org/pgadmin4/blob/REL-4_30/web/config.py#L415
 	//

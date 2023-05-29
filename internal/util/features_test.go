@@ -1,5 +1,5 @@
 /*
- Copyright 2017 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2017 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -29,7 +29,7 @@ func TestAddAndSetFeatureGates(t *testing.T) {
 	const TestGate2 featuregate.Feature = "TestGate2"
 	const TestGate3 featuregate.Feature = "TestGate3"
 
-	pgoFeatures = map[featuregate.Feature]featuregate.FeatureSpec{
+	ivyoFeatures = map[featuregate.Feature]featuregate.FeatureSpec{
 		TestGate1: {Default: false, PreRelease: featuregate.Beta},
 		TestGate2: {Default: false, PreRelease: featuregate.Beta},
 		TestGate3: {Default: false, PreRelease: featuregate.Beta},

@@ -1,7 +1,7 @@
 package util
 
 /*
- Copyright 2017 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2017 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -44,22 +44,22 @@ func SQLQuoteIdentifier(identifier string) string {
 //
 // Any single quotes in name will be escaped. Any backslashes (i.e. "\") will be
 // replaced by two backslashes (i.e. "\\") and the C-style escape identifier
-// that PostgreSQL provides ('E') will be prepended to the string.
+// that IvorySQL provides ('E') will be prepended to the string.
 //
 // Implementation borrowed from lib/pq: https://github.com/lib/pq which is
 // licensed under the MIT License. Curiously, @jkatz and @cbandy were the ones
-// who worked on the patch to add this, prior to being at Crunchy Data
+// who worked on the patch to add this, prior to being at Highgo
 func SQLQuoteLiteral(literal string) string {
-	// This follows the PostgreSQL internal algorithm for handling quoted literals
+	// This follows the IvorySQL internal algorithm for handling quoted literals
 	// from libpq, which can be found in the "PQEscapeStringInternal" function,
 	// which is found in the libpq/fe-exec.c source file:
-	// https://git.postgresql.org/gitweb/?p=postgresql.git;a=blob;f=src/interfaces/libpq/fe-exec.c
+	// https://git.ivorysql.org/gitweb/?p=ivorysql.git;a=blob;f=src/interfaces/libpq/fe-exec.c
 	//
 	// substitute any single-quotes (') with two single-quotes ('')
 	literal = strings.Replace(literal, `'`, `''`, -1)
 	// determine if the string has any backslashes (\) in it.
 	// if it does, replace any backslashes (\) with two backslashes (\\)
-	// then, we need to wrap the entire string with a PostgreSQL
+	// then, we need to wrap the entire string with a IvorySQL
 	// C-style escape. Per how "PQEscapeStringInternal" handles this case, we
 	// also add a space before the "E"
 	if strings.Contains(literal, `\`) {

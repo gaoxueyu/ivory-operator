@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -23,32 +23,32 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/internal/pki"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/internal/testing/cmp"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/internal/pki"
+	"github.com/highgo/ivory-operator/internal/testing/cmp"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestClusterConfigMap(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
 
-	cluster := new(v1beta1.PostgresCluster)
-	pgHBAs := postgres.HBAs{}
-	pgParameters := postgres.Parameters{}
+	cluster := new(v1beta1.IvoryCluster)
+	ivyHBAs := ivory.HBAs{}
+	pgParameters := ivory.Parameters{}
 
 	cluster.Default()
 	config := new(corev1.ConfigMap)
-	assert.NilError(t, ClusterConfigMap(ctx, cluster, pgHBAs, pgParameters, config))
+	assert.NilError(t, ClusterConfigMap(ctx, cluster, ivyHBAs, pgParameters, config))
 
 	// The output of clusterYAML should go into config.
-	data, _ := clusterYAML(cluster, pgHBAs, pgParameters)
+	data, _ := clusterYAML(cluster, ivyHBAs, pgParameters)
 	assert.DeepEqual(t, config.Data["patroni.yaml"], data)
 
 	// No change when called again.
 	before := config.DeepCopy()
-	assert.NilError(t, ClusterConfigMap(ctx, cluster, pgHBAs, pgParameters, config))
+	assert.NilError(t, ClusterConfigMap(ctx, cluster, ivyHBAs, pgParameters, config))
 	assert.DeepEqual(t, config, before)
 }
 
@@ -106,8 +106,8 @@ func TestInstanceConfigMap(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	cluster := new(v1beta1.PostgresCluster)
-	instance := new(v1beta1.PostgresInstanceSetSpec)
+	cluster := new(v1beta1.IvoryCluster)
+	instance := new(v1beta1.IvoryInstanceSetSpec)
 	config := new(corev1.ConfigMap)
 	data, _ := instanceYAML(cluster, instance, nil)
 
@@ -124,7 +124,7 @@ func TestInstanceConfigMap(t *testing.T) {
 func TestInstancePod(t *testing.T) {
 	t.Parallel()
 
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	cluster.Default()
 	cluster.Name = "some-such"
 	cluster.Spec.PostgresVersion = 11
@@ -134,7 +134,7 @@ func TestInstancePod(t *testing.T) {
 	clusterPodService := new(corev1.Service)
 	instanceCertficates := new(corev1.Secret)
 	instanceConfigMap := new(corev1.ConfigMap)
-	instanceSpec := new(v1beta1.PostgresInstanceSetSpec)
+	instanceSpec := new(v1beta1.IvoryInstanceSetSpec)
 	patroniLeaderService := new(corev1.Service)
 	template := new(corev1.PodTemplateSpec)
 	template.Spec.Containers = []corev1.Container{{Name: "database"}}
@@ -217,17 +217,17 @@ volumes:
     - configMap:
         items:
         - key: patroni.yaml
-          path: ~postgres-operator_cluster.yaml
+          path: ~ivory-operator_cluster.yaml
     - configMap:
         items:
         - key: patroni.yaml
-          path: ~postgres-operator_instance.yaml
+          path: ~ivory-operator_instance.yaml
     - secret:
         items:
         - key: patroni.ca-roots
-          path: ~postgres-operator/patroni.ca-roots
+          path: ~ivory-operator/patroni.ca-roots
         - key: patroni.crt-combined
-          path: ~postgres-operator/patroni.crt+key
+          path: ~ivory-operator/patroni.crt+key
 	`))
 }
 

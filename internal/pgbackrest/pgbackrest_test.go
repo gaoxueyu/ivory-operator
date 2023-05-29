@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/crunchydata/postgres-operator/internal/testing/require"
+	"github.com/highgo/ivory-operator/internal/testing/require"
 )
 
 func TestStanzaCreateOrUpgrade(t *testing.T) {
@@ -41,7 +41,7 @@ else
     pgbackrest "${cmd}" --stanza="${stanza}"
 fi
 `,
-		"-", "7f5d4d5bdc", "db", "postgres operator error: pgBackRest config hash mismatch",
+		"-", "7f5d4d5bdc", "db", "ivory operator error: pgBackRest config hash mismatch",
 		"stanza-create"}
 
 	var shellCheckScript string

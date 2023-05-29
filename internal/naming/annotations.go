@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -21,13 +21,13 @@ const (
 	// Finalizer marks an object to be garbage collected by this module.
 	Finalizer = annotationPrefix + "finalizer"
 
-	// PatroniSwitchover is the annotation added to a PostgresCluster to initiate a manual
+	// PatroniSwitchover is the annotation added to a IvoryCluster to initiate a manual
 	// Patroni Switchover (or Failover).
 	PatroniSwitchover = annotationPrefix + "trigger-switchover"
 
-	// PGBackRestBackup is the annotation that is added to a PostgresCluster to initiate a manual
+	// PGBackRestBackup is the annotation that is added to a IvoryCluster to initiate a manual
 	// backup.  The value of the annotation will be a unique identifier for a backup Job (e.g. a
-	// timestamp), which will be stored in the PostgresCluster status to properly track completion
+	// timestamp), which will be stored in the IvoryCluster status to properly track completion
 	// of the Job.  Also used to annotate the backup Job itself as needed to identify the backup
 	// ID associated with a specific manual backup Job.
 	PGBackRestBackup = annotationPrefix + "pgbackrest-backup"
@@ -45,9 +45,9 @@ const (
 	// enabled or disabled.
 	PGBackRestCurrentConfig = annotationPrefix + "pgbackrest-config"
 
-	// PGBackRestRestore is the annotation that is added to a PostgresCluster to initiate an in-place
+	// PGBackRestRestore is the annotation that is added to a IvoryCluster to initiate an in-place
 	// restore.  The value of the annotation will be a unique identfier for a restore Job (e.g. a
-	// timestamp), which will be stored in the PostgresCluster status to properly track completion
+	// timestamp), which will be stored in the IvoryCluster status to properly track completion
 	// of the Job.
 	PGBackRestRestore = annotationPrefix + "pgbackrest-restore"
 

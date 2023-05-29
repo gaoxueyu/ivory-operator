@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/rand"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // maxPGBackrestRepos is the maximum number of repositories that can be configured according to the
@@ -31,9 +31,9 @@ import (
 const maxPGBackrestRepos = 4
 
 // DedicatedRepoHostEnabled determines whether not a pgBackRest dedicated repository host is
-// enabled according to the provided PostgresCluster
-func DedicatedRepoHostEnabled(postgresCluster *v1beta1.PostgresCluster) bool {
-	for _, repo := range postgresCluster.Spec.Backups.PGBackRest.Repos {
+// enabled according to the provided IvoryCluster
+func DedicatedRepoHostEnabled(ivoryCluster *v1beta1.IvoryCluster) bool {
+	for _, repo := range ivoryCluster.Spec.Backups.PGBackRest.Repos {
 		if repo.Volume != nil {
 			return true
 		}
@@ -42,10 +42,10 @@ func DedicatedRepoHostEnabled(postgresCluster *v1beta1.PostgresCluster) bool {
 }
 
 // CalculateConfigHashes calculates hashes for any external pgBackRest repository configuration
-// present in the PostgresCluster spec (e.g. configuration for Azure, GCR and/or S3 repositories).
+// present in the IvoryCluster spec (e.g. configuration for Azure, GCR and/or S3 repositories).
 // Additionally it returns a hash of the hashes for each external repository.
 func CalculateConfigHashes(
-	postgresCluster *v1beta1.PostgresCluster) (map[string]string, string, error) {
+	ivoryCluster *v1beta1.IvoryCluster) (map[string]string, string, error) {
 
 	hashFunc := func(repoOpts []string) (string, error) {
 		return safeHash32(func(w io.Writer) (err error) {
@@ -58,7 +58,7 @@ func CalculateConfigHashes(
 
 	var err error
 	repoConfigHashes := make(map[string]string)
-	for _, repo := range postgresCluster.Spec.Backups.PGBackRest.Repos {
+	for _, repo := range ivoryCluster.Spec.Backups.PGBackRest.Repos {
 		// hashes are only calculated for external repo configs
 		if repo.Volume != nil {
 			continue

@@ -19,8 +19,7 @@ CRUNCHY_POSTGRES_EXPORTER_PG_FULL_VERSION ?= 15.2
 PGMONITOR_DIR ?= hack/tools/pgmonitor
 PGMONITOR_VERSION ?= 'v4.8.0'
 POSTGRES_EXPORTER_VERSION ?= 0.10.1
-POSTGRES_EXPORTER_ARCHITECTURE ?= amd64
-POSTGRES_EXPORTER_URL ?= https://github.com/prometheus-community/postgres_exporter/releases/download/v${POSTGRES_EXPORTER_VERSION}/postgres_exporter-${POSTGRES_EXPORTER_VERSION}.linux-${POSTGRES_EXPORTER_ARCHITECTURE}.tar.gz
+POSTGRES_EXPORTER_URL ?= https://github.com/prometheus-community/postgres_exporter/releases/download/v${POSTGRES_EXPORTER_VERSION}/postgres_exporter-${POSTGRES_EXPORTER_VERSION}.linux-amd64.tar.gz
 
 # Buildah's "build" used to be "bud". Use the alias to be compatible for a while.
 BUILDAH_BUILD ?= buildah bud
@@ -167,7 +166,7 @@ build-crunchy-postgres-exporter-image: build/crunchy-postgres-exporter/Dockerfil
 		$(warning WARNING: old buildah does not invalidate its cache for changed labels: \
 			https://github.com/containers/buildah/issues/3517))
 	$(if $(IMAGE_TAG),,	$(error missing IMAGE_TAG))
-	$(strip $(BUILDAH_BUILD)) \
+	$(BUILDAH_BUILD) \
 		--tag $(BUILDAH_TRANSPORT)$(CRUNCHY_POSTGRES_EXPORTER_IMAGE_PREFIX)/$(CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME):$(IMAGE_TAG) \
 		--build-arg PGVERSION=$(CRUNCHY_POSTGRES_EXPORTER_PG_VERSION) \
 		--label name='$(CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME)' \
@@ -207,7 +206,7 @@ build-postgres-operator-image: build/postgres-operator/Dockerfile
 		$(warning WARNING: old buildah does not invalidate its cache for changed labels: \
 			https://github.com/containers/buildah/issues/3517))
 	$(if $(IMAGE_TAG),,	$(error missing IMAGE_TAG))
-	$(strip $(BUILDAH_BUILD)) \
+	$(BUILDAH_BUILD) \
 		--tag $(BUILDAH_TRANSPORT)$(PGO_IMAGE_PREFIX)/$(PGO_IMAGE_NAME):$(IMAGE_TAG) \
 		--label name='$(PGO_IMAGE_NAME)' \
 		--label build-date='$(PGO_IMAGE_TIMESTAMP)' \
@@ -366,10 +365,11 @@ release-postgres-operator-image-labels:
 .PHONY: release-crunchy-postgres-exporter-image release-crunchy-postgres-exporter-image-labels
 release-crunchy-postgres-exporter-image: ## Build the postgres-operator image and all its prerequisites
 release-crunchy-postgres-exporter-image: release-crunchy-postgres-exporter-image-labels
-release-crunchy-postgres-exporter-image: build-crunchy-postgres-exporter-image
+release-crunchy-postgres-exporter-image: licenses
+release-crunchy-postgres-exporter-image: build-postgres-operator-image
 release-crunchy-postgres-exporter-image-labels:
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_DESCRIPTION),,	$(error missing CRUNCHY_POSTGRES_EXPORTER_DESCRIPTION))
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_MAINTAINER),, 	$(error missing CRUNCHY_POSTGRES_EXPORTER_MAINTAINER))
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME),,  $(error missing CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME))
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_SUMMARY),,    	$(error missing CRUNCHY_POSTGRES_EXPORTER_SUMMARY))
-	$(if $(PGO_VERSION),,                           $(error missing PGO_VERSION))
+	$(if $(PGO_IMAGE_DESCRIPTION),,	$(error missing PGO_IMAGE_DESCRIPTION))
+	$(if $(PGO_IMAGE_MAINTAINER),, 	$(error missing PGO_IMAGE_MAINTAINER))
+	$(if $(PGO_IMAGE_NAME),,       	$(error missing PGO_IMAGE_NAME))
+	$(if $(PGO_IMAGE_SUMMARY),,    	$(error missing PGO_IMAGE_SUMMARY))
+	$(if $(PGO_VERSION),,			$(error missing PGO_VERSION))

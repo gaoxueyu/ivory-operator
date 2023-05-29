@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -24,7 +24,7 @@ import (
 	"gotest.tools/v3/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestCalculateConfigHashes(t *testing.T) {
@@ -51,13 +51,13 @@ func TestCalculateConfigHashes(t *testing.T) {
 		preCalculatedRepo2GCSHash, preCalculatedRepo3S3Hash})
 	assert.NilError(t, err)
 
-	// create a PostgresCluster to test with
-	postgresCluster := &v1beta1.PostgresCluster{
+	// create a IvoryCluster to test with
+	ivoryCluster := &v1beta1.IvoryCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "config-hashes",
 			Namespace: "calculate-config-hashes",
 		},
-		Spec: v1beta1.PostgresClusterSpec{
+		Spec: v1beta1.IvoryClusterSpec{
 			Backups: v1beta1.Backups{
 				PGBackRest: v1beta1.PGBackRestArchive{
 					Repos: []v1beta1.PGBackRestRepo{{
@@ -83,7 +83,7 @@ func TestCalculateConfigHashes(t *testing.T) {
 		},
 	}
 
-	configHashMap, configHash, err := CalculateConfigHashes(postgresCluster)
+	configHashMap, configHash, err := CalculateConfigHashes(ivoryCluster)
 	assert.NilError(t, err)
 	assert.Equal(t, preCalculatedConfigHash, configHash)
 	assert.Equal(t, preCalculatedRepo1AzureHash, configHashMap["repo1"])
@@ -92,7 +92,7 @@ func TestCalculateConfigHashes(t *testing.T) {
 
 	// call CalculateConfigHashes multiple times to ensure consistent results
 	for i := 0; i < 10; i++ {
-		hashMap, hash, err := CalculateConfigHashes(postgresCluster)
+		hashMap, hash, err := CalculateConfigHashes(ivoryCluster)
 		assert.NilError(t, err)
 		assert.Equal(t, configHash, hash)
 		assert.Equal(t, configHashMap["repo1"], hashMap["repo1"])
@@ -102,7 +102,7 @@ func TestCalculateConfigHashes(t *testing.T) {
 
 	// shuffle the repo slice in order to ensure the same result is returned regardless of the
 	// order of the repos slice
-	shuffleCluster := postgresCluster.DeepCopy()
+	shuffleCluster := ivoryCluster.DeepCopy()
 	for i := 0; i < 10; i++ {
 		repos := shuffleCluster.Spec.Backups.PGBackRest.Repos
 		rand.Shuffle(len(repos), func(i, j int) {
@@ -115,7 +115,7 @@ func TestCalculateConfigHashes(t *testing.T) {
 
 	// now modify some values in each repo and confirm we see a different result
 	for i := 0; i < 3; i++ {
-		modCluster := postgresCluster.DeepCopy()
+		modCluster := ivoryCluster.DeepCopy()
 		switch i {
 		case 0:
 			modCluster.Spec.Backups.PGBackRest.Repos[i].Azure.Container = "modified-container"

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -25,7 +25,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func TestEnableInPostgreSQL(t *testing.T) {
+func TestEnableInIvorySQL(t *testing.T) {
 	expected := errors.New("whoops")
 	exec := func(
 		_ context.Context, stdin io.Reader, stdout, stderr io.Writer, command ...string,
@@ -49,5 +49,5 @@ CREATE EXTENSION IF NOT EXISTS postgis_tiger_geocoder;`)
 	}
 
 	ctx := context.Background()
-	assert.Equal(t, expected, EnableInPostgreSQL(ctx, exec))
+	assert.Equal(t, expected, EnableInIvorySQL(ctx, exec))
 }

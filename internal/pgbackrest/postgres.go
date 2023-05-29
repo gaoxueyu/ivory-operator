@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -18,26 +18,26 @@ package pgbackrest
 import (
 	"strings"
 
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
-// PostgreSQL populates outParameters with any settings needed to run pgBackRest.
-func PostgreSQL(
-	inCluster *v1beta1.PostgresCluster,
-	outParameters *postgres.Parameters,
+// IvorySQL populates outParameters with any settings needed to run pgBackRest.
+func IvorySQL(
+	inCluster *v1beta1.IvoryCluster,
+	outParameters *ivory.Parameters,
 ) {
 	if outParameters.Mandatory == nil {
-		outParameters.Mandatory = postgres.NewParameterSet()
+		outParameters.Mandatory = ivory.NewParameterSet()
 	}
 	if outParameters.Default == nil {
-		outParameters.Default = postgres.NewParameterSet()
+		outParameters.Default = ivory.NewParameterSet()
 	}
 
 	// Send WAL files to all configured repositories when not in recovery.
 	// - https://pgbackrest.org/user-guide.html#quickstart/configure-archiving
 	// - https://pgbackrest.org/command.html#command-archive-push
-	// - https://www.postgresql.org/docs/current/runtime-config-wal.html
+	// - https://www.ivorysql.org/docs/current/runtime-config-wal.html
 	archive := `pgbackrest --stanza=` + DefaultStanzaName + ` archive-push "%p"`
 	outParameters.Mandatory.Add("archive_mode", "on")
 	outParameters.Mandatory.Add("archive_command", archive)
@@ -50,16 +50,16 @@ func PostgreSQL(
 	// connected using streaming replication, this also ensures that new data is
 	// available at least once a minute.
 	//
-	// PostgreSQL documentation considers an archive_timeout of 60 seconds to be
+	// IvorySQL documentation considers an archive_timeout of 60 seconds to be
 	// reasonable. There are cases where you may want to set archive_timeout to 0,
 	// for example, when the remote archive (pgBackRest repo) is unavailable; this
 	// is to prevent WAL accumulation on your primary.
-	// - https://www.postgresql.org/docs/current/runtime-config-wal.html#GUC-ARCHIVE-TIMEOUT
+	// - https://www.ivorysql.org/docs/current/runtime-config-wal.html#GUC-ARCHIVE-TIMEOUT
 	outParameters.Default.Add("archive_timeout", "60s")
 
 	// Fetch WAL files from any configured repository during recovery.
 	// - https://pgbackrest.org/command.html#command-archive-get
-	// - https://www.postgresql.org/docs/current/runtime-config-wal.html
+	// - https://www.ivorysql.org/docs/current/runtime-config-wal.html
 	restore := `pgbackrest --stanza=` + DefaultStanzaName + ` archive-get %f "%p"`
 	outParameters.Mandatory.Add("restore_command", restore)
 

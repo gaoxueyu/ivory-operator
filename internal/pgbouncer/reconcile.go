@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -22,18 +22,18 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/crunchydata/postgres-operator/internal/config"
-	"github.com/crunchydata/postgres-operator/internal/initialize"
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/internal/pki"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/internal/util"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/config"
+	"github.com/highgo/ivory-operator/internal/initialize"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/internal/pki"
+	"github.com/highgo/ivory-operator/internal/util"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // ConfigMap populates the PgBouncer ConfigMap.
 func ConfigMap(
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	outConfigMap *corev1.ConfigMap,
 ) {
 	if inCluster.Spec.Proxy == nil || inCluster.Spec.Proxy.PGBouncer == nil {
@@ -49,7 +49,7 @@ func ConfigMap(
 
 // Secret populates the PgBouncer Secret.
 func Secret(ctx context.Context,
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	inRoot *pki.RootCertificateAuthority,
 	inSecret *corev1.Secret,
 	inService *corev1.Service,
@@ -114,9 +114,9 @@ func Secret(ctx context.Context,
 
 // Pod populates a PodSpec with the container and volumes needed to run PgBouncer.
 func Pod(
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	inConfigMap *corev1.ConfigMap,
-	inPostgreSQLCertificate *corev1.SecretProjection,
+	inIvorySQLCertificate *corev1.SecretProjection,
 	inSecret *corev1.Secret,
 	outPod *corev1.PodSpec,
 ) {
@@ -133,7 +133,7 @@ func Pod(
 		Sources: append(append([]corev1.VolumeProjection{},
 			podConfigFiles(inCluster.Spec.Proxy.PGBouncer.Config, inConfigMap, inSecret)...),
 			frontendCertificate(inCluster.Spec.Proxy.PGBouncer.CustomTLSSecret, inSecret),
-			backendAuthority(inPostgreSQLCertificate),
+			backendAuthority(inIvorySQLCertificate),
 		),
 	}
 
@@ -199,15 +199,15 @@ func Pod(
 	outPod.Volumes = []corev1.Volume{configVolume}
 }
 
-// PostgreSQL populates outHBAs with any records needed to run PgBouncer.
-func PostgreSQL(
-	inCluster *v1beta1.PostgresCluster,
-	outHBAs *postgres.HBAs,
+// IvorySQL populates outHBAs with any records needed to run PgBouncer.
+func IvorySQL(
+	inCluster *v1beta1.IvoryCluster,
+	outHBAs *ivory.HBAs,
 ) {
 	if inCluster.Spec.Proxy == nil || inCluster.Spec.Proxy.PGBouncer == nil {
 		// PgBouncer is disabled; there is nothing to do.
 		return
 	}
 
-	outHBAs.Mandatory = append(outHBAs.Mandatory, postgresqlHBAs()...)
+	outHBAs.Mandatory = append(outHBAs.Mandatory, ivorysqlHBAs()...)
 }
