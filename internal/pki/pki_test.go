@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -27,7 +27,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/crunchydata/postgres-operator/internal/testing/require"
+	"github.com/highgo/ivory-operator/internal/testing/require"
 )
 
 type StringSet map[string]struct{}
@@ -112,7 +112,7 @@ func TestRootCertificateAuthority(t *testing.T) {
 	assert.Equal(t, cert.MaxPathLen, 0)
 	assert.Equal(t, cert.PublicKeyAlgorithm, x509.ECDSA)
 	assert.Equal(t, cert.SignatureAlgorithm, x509.ECDSAWithSHA384)
-	assert.Equal(t, cert.Subject.CommonName, "postgres-operator-ca")
+	assert.Equal(t, cert.Subject.CommonName, "ivory-operator-ca")
 	assert.Equal(t, cert.KeyUsage, x509.KeyUsageCertSign|x509.KeyUsageCRLSign)
 
 	assert.Assert(t, cert.DNSNames == nil)
@@ -244,7 +244,7 @@ func TestLeafCertificate(t *testing.T) {
 			assert.Assert(t, !serials.Has(number))
 			serials.Insert(number)
 
-			assert.Equal(t, cert.Issuer.CommonName, "postgres-operator-ca")
+			assert.Equal(t, cert.Issuer.CommonName, "ivory-operator-ca")
 			assert.Assert(t, cert.BasicConstraintsValid && !cert.IsCA)
 			assert.Assert(t, time.Now().After(cert.NotBefore), "early, got %v", cert.NotBefore)
 			assert.Assert(t, time.Now().Before(cert.NotAfter), "expired, got %v", cert.NotAfter)

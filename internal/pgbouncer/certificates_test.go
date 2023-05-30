@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -31,7 +31,7 @@ func TestBackendAuthority(t *testing.T) {
 secret:
   items:
   - key: ca.crt
-    path: ~postgres-operator/backend-ca.crt
+    path: ~ivory-operator/backend-ca.crt
   name: some-name
 	`))
 
@@ -44,7 +44,7 @@ secret:
 secret:
   items:
   - key: some-ca-key
-    path: ~postgres-operator/backend-ca.crt
+    path: ~ivory-operator/backend-ca.crt
   name: some-name
 	`))
 }
@@ -58,11 +58,11 @@ func TestFrontendCertificate(t *testing.T) {
 secret:
   items:
   - key: pgbouncer-frontend.ca-roots
-    path: ~postgres-operator/frontend-ca.crt
+    path: ~ivory-operator/frontend-ca.crt
   - key: pgbouncer-frontend.key
-    path: ~postgres-operator/frontend-tls.key
+    path: ~ivory-operator/frontend-tls.key
   - key: pgbouncer-frontend.crt
-    path: ~postgres-operator/frontend-tls.crt
+    path: ~ivory-operator/frontend-tls.crt
   name: op-secret
 		`))
 	})
@@ -76,11 +76,11 @@ secret:
 secret:
   items:
   - key: ca.crt
-    path: ~postgres-operator/frontend-ca.crt
+    path: ~ivory-operator/frontend-ca.crt
   - key: tls.key
-    path: ~postgres-operator/frontend-tls.key
+    path: ~ivory-operator/frontend-tls.key
   - key: tls.crt
-    path: ~postgres-operator/frontend-tls.crt
+    path: ~ivory-operator/frontend-tls.crt
   name: some-other
 		`))
 
@@ -95,11 +95,11 @@ secret:
 secret:
   items:
   - key: some-ca-key
-    path: ~postgres-operator/frontend-ca.crt
+    path: ~ivory-operator/frontend-ca.crt
   - key: some-cert-key
-    path: ~postgres-operator/frontend-tls.crt
+    path: ~ivory-operator/frontend-tls.crt
   - key: some-key-key
-    path: ~postgres-operator/frontend-tls.key
+    path: ~ivory-operator/frontend-tls.key
   name: some-other
 		`))
 	})

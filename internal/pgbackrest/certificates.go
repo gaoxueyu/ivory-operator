@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -21,7 +21,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/initialize"
+	"github.com/highgo/ivory-operator/internal/initialize"
 )
 
 const (
@@ -31,9 +31,9 @@ const (
 	certServerPrivateKeyAbsolutePath = serverMountPath + "/" + certServerPrivateKeyProjectionPath
 	certServerAbsolutePath           = serverMountPath + "/" + certServerProjectionPath
 
-	certAuthorityProjectionPath        = "~postgres-operator/tls-ca.crt"
-	certClientPrivateKeyProjectionPath = "~postgres-operator/client-tls.key"
-	certClientProjectionPath           = "~postgres-operator/client-tls.crt"
+	certAuthorityProjectionPath        = "~ivory-operator/tls-ca.crt"
+	certClientPrivateKeyProjectionPath = "~ivory-operator/client-tls.key"
+	certClientProjectionPath           = "~ivory-operator/client-tls.crt"
 	certServerPrivateKeyProjectionPath = "server-tls.key"
 	certServerProjectionPath           = "server-tls.crt"
 

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // AsSelector is a wrapper around metav1.LabelSelectorAsSelector() which converts
@@ -28,7 +28,7 @@ func AsSelector(s metav1.LabelSelector) (labels.Selector, error) {
 	return metav1.LabelSelectorAsSelector(&s)
 }
 
-// AnyCluster selects things for any PostgreSQL cluster.
+// AnyCluster selects things for any IvorySQL cluster.
 func AnyCluster() metav1.LabelSelector {
 	return metav1.LabelSelector{
 		MatchExpressions: []metav1.LabelSelectorRequirement{
@@ -46,9 +46,9 @@ func Cluster(cluster string) metav1.LabelSelector {
 	}
 }
 
-// ClusterDataForPostgresAndPGBackRest selects things for PostgreSQL data and
+// ClusterDataForIvoryAndPGBackRest selects things for IvorySQL data and
 // things for pgBackRest data.
-func ClusterDataForPostgresAndPGBackRest(cluster string) metav1.LabelSelector {
+func ClusterDataForIvoryAndPGBackRest(cluster string) metav1.LabelSelector {
 	return metav1.LabelSelector{
 		MatchLabels: map[string]string{
 			LabelCluster: cluster,
@@ -56,7 +56,7 @@ func ClusterDataForPostgresAndPGBackRest(cluster string) metav1.LabelSelector {
 		MatchExpressions: []metav1.LabelSelectorRequirement{{
 			Key:      LabelData,
 			Operator: metav1.LabelSelectorOpIn,
-			Values:   []string{DataPostgres, DataPGBackRest},
+			Values:   []string{DataIvory, DataPGBackRest},
 		}},
 	}
 }
@@ -71,7 +71,7 @@ func ClusterInstance(cluster, instance string) metav1.LabelSelector {
 	}
 }
 
-// ClusterInstances selects things for PostgreSQL instances in cluster.
+// ClusterInstances selects things for IvorySQL instances in cluster.
 func ClusterInstances(cluster string) metav1.LabelSelector {
 	return metav1.LabelSelector{
 		MatchLabels: map[string]string{
@@ -106,7 +106,7 @@ func ClusterInstanceSets(cluster string) metav1.LabelSelector {
 }
 
 // ClusterPatronis selects things labeled for Patroni in cluster.
-func ClusterPatronis(cluster *v1beta1.PostgresCluster) metav1.LabelSelector {
+func ClusterPatronis(cluster *v1beta1.IvoryCluster) metav1.LabelSelector {
 	return metav1.LabelSelector{
 		MatchLabels: map[string]string{
 			LabelCluster: cluster.Name,
@@ -116,7 +116,7 @@ func ClusterPatronis(cluster *v1beta1.PostgresCluster) metav1.LabelSelector {
 }
 
 // ClusterPGBouncerSelector selects things labeled for PGBouncer in cluster.
-func ClusterPGBouncerSelector(cluster *v1beta1.PostgresCluster) metav1.LabelSelector {
+func ClusterPGBouncerSelector(cluster *v1beta1.IvoryCluster) metav1.LabelSelector {
 	return metav1.LabelSelector{
 		MatchLabels: map[string]string{
 			LabelCluster: cluster.Name,
@@ -125,21 +125,21 @@ func ClusterPGBouncerSelector(cluster *v1beta1.PostgresCluster) metav1.LabelSele
 	}
 }
 
-// ClusterPostgresUsers selects things labeled for PostgreSQL users in cluster.
-func ClusterPostgresUsers(cluster string) metav1.LabelSelector {
+// ClusterIvoryUsers selects things labeled for IvorySQL users in cluster.
+func ClusterIvoryUsers(cluster string) metav1.LabelSelector {
 	return metav1.LabelSelector{
 		MatchLabels: map[string]string{
 			LabelCluster: cluster,
 		},
 		MatchExpressions: []metav1.LabelSelectorRequirement{
-			// The now-deprecated default PostgreSQL user secret lacks a LabelRole.
-			// The existence of a LabelPostgresUser matches it and current secrets.
-			{Key: LabelPostgresUser, Operator: metav1.LabelSelectorOpExists},
+			// The now-deprecated default IvorySQL user secret lacks a LabelRole.
+			// The existence of a LabelIvoryUser matches it and current secrets.
+			{Key: LabelIvoryUser, Operator: metav1.LabelSelectorOpExists},
 		},
 	}
 }
 
-// ClusterPrimary selects things for the Primary PostgreSQL instance.
+// ClusterPrimary selects things for the Primary IvorySQL instance.
 func ClusterPrimary(cluster string) metav1.LabelSelector {
 	s := ClusterInstances(cluster)
 	s.MatchLabels[LabelRole] = RolePatroniLeader

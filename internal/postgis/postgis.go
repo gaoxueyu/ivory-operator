@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,22 +19,22 @@ import (
 	"context"
 	"strings"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/logging"
 )
 
-// EnableInPostgreSQL installs triggers for the following extensions into every database:
+// EnableInIvorySQL installs triggers for the following extensions into every database:
 //   - postgis
 //   - postgis_topology
 //   - fuzzystrmatch
 //   - postgis_tiger_geocoder
-func EnableInPostgreSQL(ctx context.Context, exec postgres.Executor) error {
+func EnableInIvorySQL(ctx context.Context, exec ivory.Executor) error {
 	log := logging.FromContext(ctx)
 
 	stdout, stderr, err := exec.ExecInAllDatabases(ctx,
 		strings.Join([]string{
 			// Quiet NOTICE messages from IF NOT EXISTS statements.
-			// - https://www.postgresql.org/docs/current/runtime-config-client.html
+			// - https://www.ivorysql.org/docs/current/runtime-config-client.html
 			`SET client_min_messages = WARNING;`,
 
 			`CREATE EXTENSION IF NOT EXISTS postgis;`,

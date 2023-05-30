@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -18,14 +18,12 @@ package bridge
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"sync"
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/util/wait"
 	corev1apply "k8s.io/client-go/applyconfigurations/core/v1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -36,9 +34,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/yaml"
 
-	"github.com/crunchydata/postgres-operator/internal/controller/runtime"
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/internal/naming"
+	"github.com/highgo/ivory-operator/internal/controller/runtime"
+	"github.com/highgo/ivory-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/naming"
 )
 
 // self is a singleton Installation. See [InstallationReconciler].
@@ -67,9 +65,6 @@ type InstallationReconciler struct {
 		Patch(context.Context, client.Object, client.Patch, ...client.PatchOption) error
 	}
 
-	// Refresh is the frequency at which AuthObjects should be renewed.
-	Refresh time.Duration
-
 	// SecretRef is the name of the corev1.Secret in which to store Bridge tokens.
 	SecretRef client.ObjectKey
 
@@ -84,7 +79,6 @@ func ManagedInstallationReconciler(m manager.Manager, newClient func() *Client) 
 		Owner:     naming.ControllerBridge,
 		Reader:    kubernetes,
 		Writer:    kubernetes,
-		Refresh:   2 * time.Hour,
 		SecretRef: naming.AsObjectKey(naming.OperatorConfigurationSecret()),
 		NewClient: newClient,
 	}
@@ -125,7 +119,7 @@ func (r *InstallationReconciler) Reconcile(
 		// make it so.
 		secret.Namespace, secret.Name = request.Namespace, request.Name
 
-		result.RequeueAfter, err = r.reconcile(ctx, secret)
+		err = r.reconcile(ctx, secret)
 	}
 
 	// TODO: Check for corev1.NamespaceTerminatingCause after
@@ -140,14 +134,10 @@ func (r *InstallationReconciler) Reconcile(
 	return result, err
 }
 
-// reconcile looks for an Installation in read and stores it or another in
-// the [self] singleton after a successful response from the Bridge API.
-func (r *InstallationReconciler) reconcile(
-	ctx context.Context, read *corev1.Secret) (next time.Duration, err error,
-) {
+func (r *InstallationReconciler) reconcile(ctx context.Context, read *corev1.Secret) error {
 	write, err := corev1apply.ExtractSecret(read, string(r.Owner))
 	if err != nil {
-		return 0, err
+		return err
 	}
 
 	// We GET-extract-PATCH the Secret and do not build it up from scratch.
@@ -167,30 +157,24 @@ func (r *InstallationReconciler) reconcile(
 	// Secret which triggers another reconcile.
 	if len(installation.ID) == 0 {
 		if len(self.ID) == 0 {
-			return 0, r.register(ctx, write)
+			return r.register(ctx, write)
 		}
 
 		data := map[string][]byte{}
 		data[KeyBridgeToken], _ = json.Marshal(self.Installation) //nolint:errchkjson
 
-		return 0, r.persist(ctx, write.WithData(data))
+		return r.persist(ctx, write.WithData(data))
 	}
 
-	// Read the timestamp from the Secret, if any.
-	var touched time.Time
-	if yaml.Unmarshal(read.Data[KeyBridgeLocalTime], &touched) != nil {
-		touched = time.Time{}
+	// When the Secret has an Installation, store it in memory.
+	// TODO: Validate it first; perhaps refresh the AuthObject.
+	if len(self.ID) == 0 {
+		self.Lock()
+		self.Installation = installation
+		self.Unlock()
 	}
 
-	// Refresh the AuthObject when there is no Installation in memory,
-	// there is no timestamp, or the timestamp is far away. This writes to
-	// the Secret which triggers another reconcile.
-	if len(self.ID) == 0 || time.Since(touched) > r.Refresh || time.Until(touched) > r.Refresh {
-		return 0, r.refresh(ctx, installation, write)
-	}
-
-	// Trigger another reconcile one interval after the stored timestamp.
-	return wait.Jitter(time.Until(touched.Add(r.Refresh)), 0.1), nil
+	return nil
 }
 
 // persist uses Server-Side Apply to write config to Kubernetes. The Name and
@@ -209,52 +193,6 @@ func (r *InstallationReconciler) persist(
 
 	if err == nil {
 		err = r.Writer.Patch(ctx, &target, apply, r.Owner, client.ForceOwnership)
-	}
-
-	return err
-}
-
-// refresh calls the Bridge API to refresh the AuthObject of installation. It
-// combines the result with installation and stores that in the [self] singleton
-// and the write object in Kubernetes. The Name and Namespace fields of the
-// latter cannot be nil.
-func (r *InstallationReconciler) refresh(
-	ctx context.Context, installation Installation,
-	write *corev1apply.SecretApplyConfiguration,
-) error {
-	result, err := r.NewClient().CreateAuthObject(ctx, installation.AuthObject)
-
-	// An authentication error means the installation is irrecoverably expired.
-	// Remove it from the singleton and move it to a dated entry in the Secret.
-	if err != nil && errors.Is(err, errAuthentication) {
-		self.Lock()
-		self.Installation = Installation{}
-		self.Unlock()
-
-		keyExpiration := KeyBridgeToken +
-			installation.AuthObject.ExpiresAt.UTC().Format("--2006-01-02")
-
-		data := make(map[string][]byte, 2)
-		data[KeyBridgeToken] = nil
-		data[keyExpiration], _ = json.Marshal(installation) //nolint:errchkjson
-
-		return r.persist(ctx, write.WithData(data))
-	}
-
-	if err == nil {
-		installation.AuthObject = result
-
-		// Store the new value in the singleton.
-		self.Lock()
-		self.Installation = installation
-		self.Unlock()
-
-		// Store the new value in the Secret along with the current time.
-		data := make(map[string][]byte, 2)
-		data[KeyBridgeLocalTime], _ = metav1.Now().MarshalJSON()
-		data[KeyBridgeToken], _ = json.Marshal(installation) //nolint:errchkjson
-
-		err = r.persist(ctx, write.WithData(data))
 	}
 
 	return err

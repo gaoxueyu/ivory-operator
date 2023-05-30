@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -32,8 +32,8 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/internal/testing/cmp"
+	"github.com/highgo/ivory-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/testing/cmp"
 )
 
 func init() {
@@ -58,7 +58,7 @@ func (m *MockClient) Do(req *http.Request) (*http.Response, error) {
 }
 
 func TestCheckForUpgrades(t *testing.T) {
-	fakeClient := setupFakeClientWithPGOScheme(t, false)
+	fakeClient := setupFakeClientWithIVYOScheme(t, false)
 	ctx := logging.NewContext(context.Background(), logging.Discard())
 	cfg := &rest.Config{}
 
@@ -69,13 +69,13 @@ func TestCheckForUpgrades(t *testing.T) {
 		err := json.Unmarshal([]byte(header), &data)
 		assert.NilError(t, err)
 		assert.Assert(t, data.DeploymentID != "")
-		assert.Equal(t, data.PGOVersion, "4.7.3")
+		assert.Equal(t, data.IVYOVersion, "4.7.3")
 	}
 
 	t.Run("success", func(t *testing.T) {
 		// A successful call
 		funcFoo = func() (*http.Response, error) {
-			json := `{"pgo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`
+			json := `{"ivyo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`
 			return &http.Response{
 				Body:       io.NopCloser(strings.NewReader(json)),
 				StatusCode: http.StatusOK,
@@ -85,7 +85,7 @@ func TestCheckForUpgrades(t *testing.T) {
 		res, header, err := checkForUpgrades(ctx, "", "4.7.3", backoff,
 			fakeClient, cfg, false)
 		assert.NilError(t, err)
-		assert.Equal(t, res, `{"pgo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`)
+		assert.Equal(t, res, `{"ivyo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`)
 		checkData(t, header)
 	})
 
@@ -139,7 +139,7 @@ func TestCheckForUpgrades(t *testing.T) {
 				}, nil
 			}
 			counter++
-			json := `{"pgo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`
+			json := `{"ivyo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`
 			return &http.Response{
 				Body:       io.NopCloser(strings.NewReader(json)),
 				StatusCode: http.StatusOK,
@@ -150,14 +150,14 @@ func TestCheckForUpgrades(t *testing.T) {
 			fakeClient, cfg, false)
 		assert.Equal(t, counter, 2)
 		assert.NilError(t, err)
-		assert.Equal(t, res, `{"pgo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`)
+		assert.Equal(t, res, `{"ivyo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`)
 		checkData(t, header)
 	})
 }
 
 // TODO(benjaminjb): Replace `fake` with envtest
 func TestCheckForUpgradesScheduler(t *testing.T) {
-	fakeClient := setupFakeClientWithPGOScheme(t, false)
+	fakeClient := setupFakeClientWithIVYOScheme(t, false)
 	_, server := setupVersionServer(t, true)
 	defer server.Close()
 	cfg := &rest.Config{Host: server.URL}
@@ -201,7 +201,7 @@ func TestCheckForUpgradesScheduler(t *testing.T) {
 
 		// A successful call
 		funcFoo = func() (*http.Response, error) {
-			json := `{"pgo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`
+			json := `{"ivyo_versions":[{"tag":"v5.0.4"},{"tag":"v5.0.3"},{"tag":"v5.0.2"},{"tag":"v5.0.1"},{"tag":"v5.0.0"}]}`
 			return &http.Response{
 				Body:       io.NopCloser(strings.NewReader(json)),
 				StatusCode: http.StatusOK,
@@ -222,8 +222,8 @@ func TestCheckForUpgradesScheduler(t *testing.T) {
 		// plus one log for the failure to apply the configmap
 		assert.Assert(t, len(calls) >= 4)
 
-		assert.Assert(t, cmp.Contains(calls[1], `{\"pgo_versions\":[{\"tag\":\"v5.0.4\"},{\"tag\":\"v5.0.3\"},{\"tag\":\"v5.0.2\"},{\"tag\":\"v5.0.1\"},{\"tag\":\"v5.0.0\"}]}`))
-		assert.Assert(t, cmp.Contains(calls[3], `{\"pgo_versions\":[{\"tag\":\"v5.0.4\"},{\"tag\":\"v5.0.3\"},{\"tag\":\"v5.0.2\"},{\"tag\":\"v5.0.1\"},{\"tag\":\"v5.0.0\"}]}`))
+		assert.Assert(t, cmp.Contains(calls[1], `{\"ivyo_versions\":[{\"tag\":\"v5.0.4\"},{\"tag\":\"v5.0.3\"},{\"tag\":\"v5.0.2\"},{\"tag\":\"v5.0.1\"},{\"tag\":\"v5.0.0\"}]}`))
+		assert.Assert(t, cmp.Contains(calls[3], `{\"ivyo_versions\":[{\"tag\":\"v5.0.4\"},{\"tag\":\"v5.0.3\"},{\"tag\":\"v5.0.2\"},{\"tag\":\"v5.0.1\"},{\"tag\":\"v5.0.0\"}]}`))
 	})
 }
 

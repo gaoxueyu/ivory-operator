@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -21,14 +21,14 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestAnyCluster(t *testing.T) {
 	s, err := AsSelector(AnyCluster())
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster",
+		"ivory-operator.highgo.com/cluster",
 	}, ","))
 }
 
@@ -36,22 +36,22 @@ func TestCluster(t *testing.T) {
 	s, err := AsSelector(Cluster("something"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
+		"ivory-operator.highgo.com/cluster=something",
 	}, ","))
 
 	_, err = AsSelector(Cluster("--whoa/yikes"))
 	assert.ErrorContains(t, err, "Invalid")
 }
 
-func TestClusterDataForPostgresAndPGBackRest(t *testing.T) {
-	s, err := AsSelector(ClusterDataForPostgresAndPGBackRest("something"))
+func TestClusterDataForIvoryAndPGBackRest(t *testing.T) {
+	s, err := AsSelector(ClusterDataForIvoryAndPGBackRest("something"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/data in (pgbackrest,postgres)",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/data in (ivory,pgbackrest)",
 	}, ","))
 
-	_, err = AsSelector(ClusterDataForPostgresAndPGBackRest("--whoa/yikes"))
+	_, err = AsSelector(ClusterDataForIvoryAndPGBackRest("--whoa/yikes"))
 	assert.ErrorContains(t, err, "Invalid")
 }
 
@@ -59,8 +59,8 @@ func TestClusterInstance(t *testing.T) {
 	s, err := AsSelector(ClusterInstance("daisy", "dog"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=daisy",
-		"postgres-operator.crunchydata.com/instance=dog",
+		"ivory-operator.highgo.com/cluster=daisy",
+		"ivory-operator.highgo.com/instance=dog",
 	}, ","))
 
 	_, err = AsSelector(ClusterInstance("--whoa/son", "--whoa/yikes"))
@@ -71,8 +71,8 @@ func TestClusterInstances(t *testing.T) {
 	s, err := AsSelector(ClusterInstances("something"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/instance",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/instance",
 	}, ","))
 
 	_, err = AsSelector(ClusterInstances("--whoa/yikes"))
@@ -83,8 +83,8 @@ func TestClusterInstanceSet(t *testing.T) {
 	s, err := AsSelector(ClusterInstanceSet("something", "also"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/instance-set=also",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/instance-set=also",
 	}, ","))
 
 	_, err = AsSelector(ClusterInstanceSet("--whoa/yikes", "ok"))
@@ -95,8 +95,8 @@ func TestClusterInstanceSets(t *testing.T) {
 	s, err := AsSelector(ClusterInstanceSets("something"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/instance-set",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/instance-set",
 	}, ","))
 
 	_, err = AsSelector(ClusterInstanceSets("--whoa/yikes"))
@@ -104,14 +104,14 @@ func TestClusterInstanceSets(t *testing.T) {
 }
 
 func TestClusterPatronis(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{}
+	cluster := &v1beta1.IvoryCluster{}
 	cluster.Name = "something"
 
 	s, err := AsSelector(ClusterPatronis(cluster))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/patroni=something-ha",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/patroni=something-ha",
 	}, ","))
 
 	cluster.Name = "--nope--"
@@ -120,14 +120,14 @@ func TestClusterPatronis(t *testing.T) {
 }
 
 func TestClusterPGBouncerSelector(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{}
+	cluster := &v1beta1.IvoryCluster{}
 	cluster.Name = "something"
 
 	s, err := AsSelector(ClusterPGBouncerSelector(cluster))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/role=pgbouncer",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/role=pgbouncer",
 	}, ","))
 
 	cluster.Name = "--bad--dog"
@@ -135,15 +135,15 @@ func TestClusterPGBouncerSelector(t *testing.T) {
 	assert.ErrorContains(t, err, "Invalid")
 }
 
-func TestClusterPostgresUsers(t *testing.T) {
-	s, err := AsSelector(ClusterPostgresUsers("something"))
+func TestClusterIvoryUsers(t *testing.T) {
+	s, err := AsSelector(ClusterIvoryUsers("something"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/pguser",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/pguser",
 	}, ","))
 
-	_, err = AsSelector(ClusterPostgresUsers("--nope--"))
+	_, err = AsSelector(ClusterIvoryUsers("--nope--"))
 	assert.ErrorContains(t, err, "Invalid")
 }
 
@@ -151,8 +151,8 @@ func TestClusterPrimary(t *testing.T) {
 	s, err := AsSelector(ClusterPrimary("something"))
 	assert.NilError(t, err)
 	assert.DeepEqual(t, s.String(), strings.Join([]string{
-		"postgres-operator.crunchydata.com/cluster=something",
-		"postgres-operator.crunchydata.com/instance",
-		"postgres-operator.crunchydata.com/role=master",
+		"ivory-operator.highgo.com/cluster=something",
+		"ivory-operator.highgo.com/instance",
+		"ivory-operator.highgo.com/role=master",
 	}, ","))
 }

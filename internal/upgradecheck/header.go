@@ -1,7 +1,7 @@
 package upgradecheck
 
 /*
- Copyright 2017 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2017 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -28,13 +28,13 @@ import (
 	"k8s.io/client-go/rest"
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 const (
-	clientHeader = "X-Crunchy-Client-Metadata"
+	clientHeader = "X-Highgo-Client-Metadata"
 )
 
 var (
@@ -44,24 +44,24 @@ var (
 
 // Extensible struct for client upgrade data
 type clientUpgradeData struct {
-	DeploymentID     string `json:"deployment_id"`
-	KubernetesEnv    string `json:"kubernetes_env"`
-	PGOClustersTotal int    `json:"pgo_clusters_total"`
-	PGOVersion       string `json:"pgo_version"`
-	IsOpenShift      bool   `json:"is_open_shift"`
+	DeploymentID      string `json:"deployment_id"`
+	KubernetesEnv     string `json:"kubernetes_env"`
+	IVYOClustersTotal int    `json:"ivyo_clusters_total"`
+	IVYOVersion       string `json:"ivyo_version"`
+	IsOpenShift       bool   `json:"is_open_shift"`
 }
 
 // generateHeader aggregates data and returns a struct of that data
 // If any errors are encountered, it logs those errors and uses the default values
 func generateHeader(ctx context.Context, cfg *rest.Config, crClient crclient.Client,
-	pgoVersion string, isOpenShift bool) *clientUpgradeData {
+	ivyoVersion string, isOpenShift bool) *clientUpgradeData {
 
 	return &clientUpgradeData{
-		PGOVersion:       pgoVersion,
-		IsOpenShift:      isOpenShift,
-		DeploymentID:     ensureDeploymentID(ctx, crClient),
-		PGOClustersTotal: getManagedClusters(ctx, crClient),
-		KubernetesEnv:    getServerVersion(ctx, cfg),
+		IVYOVersion:       ivyoVersion,
+		IsOpenShift:       isOpenShift,
+		DeploymentID:      ensureDeploymentID(ctx, crClient),
+		IVYOClustersTotal: getManagedClusters(ctx, crClient),
+		KubernetesEnv:     getServerVersion(ctx, cfg),
 	}
 }
 
@@ -153,15 +153,15 @@ func applyConfigMap(ctx context.Context, crClient crclient.Client,
 	return err
 }
 
-// getManagedClusters returns a count of postgres clusters managed by this PGO instance
+// getManagedClusters returns a count of ivory clusters managed by this IVO instance
 // Any errors encountered will be logged and the count result will be 0
 func getManagedClusters(ctx context.Context, crClient crclient.Client) int {
 	var count int
-	clusters := &v1beta1.PostgresClusterList{}
+	clusters := &v1beta1.IvoryClusterList{}
 	err := crClient.List(ctx, clusters)
 	if err != nil {
 		log := logging.FromContext(ctx)
-		log.V(1).Info("upgrade check issue: could not count postgres clusters",
+		log.V(1).Info("upgrade check issue: could not count ivory clusters",
 			"response", err.Error())
 	} else {
 		count = len(clusters.Items)

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -28,15 +28,15 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/internal/pki"
-	"github.com/crunchydata/postgres-operator/internal/util"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/internal/pki"
+	"github.com/highgo/ivory-operator/internal/util"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestAddRepoVolumesToPod(t *testing.T) {
 
-	postgresCluster := &v1beta1.PostgresCluster{ObjectMeta: metav1.ObjectMeta{Name: "hippo"}}
+	ivoryCluster := &v1beta1.IvoryCluster{ObjectMeta: metav1.ObjectMeta{Name: "hippo"}}
 
 	testsCases := []struct {
 		repos          []v1beta1.PGBackRestRepo
@@ -121,14 +121,14 @@ func TestAddRepoVolumesToPod(t *testing.T) {
 
 	for _, tc := range testsCases {
 		t.Run(fmt.Sprintf("repos=%d, containers=%d", len(tc.repos), len(tc.containers)), func(t *testing.T) {
-			postgresCluster.Spec.Backups.PGBackRest.Repos = tc.repos
+			ivoryCluster.Spec.Backups.PGBackRest.Repos = tc.repos
 			template := &corev1.PodTemplateSpec{
 				Spec: corev1.PodSpec{
 					InitContainers: tc.initContainers,
 					Containers:     tc.containers,
 				},
 			}
-			err := AddRepoVolumesToPod(postgresCluster, template, tc.testMap, getContainerNames(tc.containers)...)
+			err := AddRepoVolumesToPod(ivoryCluster, template, tc.testMap, getContainerNames(tc.containers)...)
 			if len(tc.initContainers) == 0 {
 				assert.Error(t, err, "Unable to find init container \"pgbackrest-log-dir\" when adding pgBackRest repo volumes")
 			} else {
@@ -139,7 +139,7 @@ func TestAddRepoVolumesToPod(t *testing.T) {
 					var foundVolume bool
 					for _, v := range template.Spec.Volumes {
 						if v.Name == r.Name && v.VolumeSource.PersistentVolumeClaim.ClaimName ==
-							naming.PGBackRestRepoVolume(postgresCluster, r.Name).Name {
+							naming.PGBackRestRepoVolume(ivoryCluster, r.Name).Name {
 							foundVolume = true
 							break
 						}
@@ -180,7 +180,7 @@ func TestAddRepoVolumesToPod(t *testing.T) {
 }
 
 func TestAddConfigToInstancePod(t *testing.T) {
-	cluster := v1beta1.PostgresCluster{}
+	cluster := v1beta1.IvoryCluster{}
 	cluster.Name = "hippo"
 	cluster.Default()
 
@@ -293,17 +293,17 @@ func TestAddConfigToInstancePod(t *testing.T) {
         - key: config-hash
           path: config-hash
         - key: pgbackrest-server.conf
-          path: ~postgres-operator_server.conf
+          path: ~ivory-operator_server.conf
         name: hippo-pgbackrest-config
     - secret:
         items:
         - key: pgbackrest.ca-roots
-          path: ~postgres-operator/tls-ca.crt
+          path: ~ivory-operator/tls-ca.crt
         - key: pgbackrest-client.crt
-          path: ~postgres-operator/client-tls.crt
+          path: ~ivory-operator/client-tls.crt
         - key: pgbackrest-client.key
           mode: 384
-          path: ~postgres-operator/client-tls.key
+          path: ~ivory-operator/client-tls.key
         name: hippo-pgbackrest
         optional: true
 		`))
@@ -311,7 +311,7 @@ func TestAddConfigToInstancePod(t *testing.T) {
 }
 
 func TestAddConfigToRepoPod(t *testing.T) {
-	cluster := v1beta1.PostgresCluster{}
+	cluster := v1beta1.IvoryCluster{}
 	cluster.Name = "hippo"
 	cluster.Default()
 
@@ -367,24 +367,24 @@ func TestAddConfigToRepoPod(t *testing.T) {
         - key: config-hash
           path: config-hash
         - key: pgbackrest-server.conf
-          path: ~postgres-operator_server.conf
+          path: ~ivory-operator_server.conf
         name: hippo-pgbackrest-config
     - secret:
         items:
         - key: pgbackrest.ca-roots
-          path: ~postgres-operator/tls-ca.crt
+          path: ~ivory-operator/tls-ca.crt
         - key: pgbackrest-client.crt
-          path: ~postgres-operator/client-tls.crt
+          path: ~ivory-operator/client-tls.crt
         - key: pgbackrest-client.key
           mode: 384
-          path: ~postgres-operator/client-tls.key
+          path: ~ivory-operator/client-tls.key
         name: hippo-pgbackrest
 		`))
 	})
 }
 
 func TestAddConfigToRestorePod(t *testing.T) {
-	cluster := v1beta1.PostgresCluster{}
+	cluster := v1beta1.IvoryCluster{}
 	cluster.Name = "source"
 	cluster.Default()
 
@@ -451,12 +451,12 @@ func TestAddConfigToRestorePod(t *testing.T) {
     - secret:
         items:
         - key: pgbackrest.ca-roots
-          path: ~postgres-operator/tls-ca.crt
+          path: ~ivory-operator/tls-ca.crt
         - key: pgbackrest-client.crt
-          path: ~postgres-operator/client-tls.crt
+          path: ~ivory-operator/client-tls.crt
         - key: pgbackrest-client.key
           mode: 384
-          path: ~postgres-operator/client-tls.key
+          path: ~ivory-operator/client-tls.key
         name: source-pgbackrest
         optional: true
 		`))
@@ -493,12 +493,12 @@ func TestAddConfigToRestorePod(t *testing.T) {
     - secret:
         items:
         - key: pgbackrest.ca-roots
-          path: ~postgres-operator/tls-ca.crt
+          path: ~ivory-operator/tls-ca.crt
         - key: pgbackrest-client.crt
-          path: ~postgres-operator/client-tls.crt
+          path: ~ivory-operator/client-tls.crt
         - key: pgbackrest-client.key
           mode: 384
-          path: ~postgres-operator/client-tls.key
+          path: ~ivory-operator/client-tls.key
         name: source-pgbackrest
         optional: true
 		`))
@@ -506,7 +506,7 @@ func TestAddConfigToRestorePod(t *testing.T) {
 }
 
 func TestAddServerToInstancePod(t *testing.T) {
-	cluster := v1beta1.PostgresCluster{}
+	cluster := v1beta1.IvoryCluster{}
 	cluster.Name = "hippo"
 	cluster.Default()
 
@@ -517,8 +517,8 @@ func TestAddServerToInstancePod(t *testing.T) {
 		},
 		Volumes: []corev1.Volume{
 			{Name: "other"},
-			{Name: "postgres-data"},
-			{Name: "postgres-wal"},
+			{Name: "ivory-data"},
+			{Name: "ivory-wal"},
 		},
 	}
 
@@ -549,7 +549,7 @@ func TestAddServerToInstancePod(t *testing.T) {
 		assert.DeepEqual(t, pod, *out, cmpopts.IgnoreFields(pod, "Containers", "Volumes"))
 
 		// The TLS server is added while other containers are untouched.
-		// It has PostgreSQL volumes mounted while other volumes are ignored.
+		// It has IvorySQL volumes mounted while other volumes are ignored.
 		assert.Assert(t, marshalMatches(out.Containers, `
 - name: database
   resources: {}
@@ -580,9 +580,9 @@ func TestAddServerToInstancePod(t *testing.T) {
     name: pgbackrest-server
     readOnly: true
   - mountPath: /pgdata
-    name: postgres-data
+    name: ivory-data
   - mountPath: /pgwal
-    name: postgres-wal
+    name: ivory-wal
 - command:
   - bash
   - -ceu
@@ -610,8 +610,8 @@ func TestAddServerToInstancePod(t *testing.T) {
     }; export directory="$1" authority="$2" filename="$3"; export -f monitor; exec -a "$0" bash -ceu monitor
   - pgbackrest-config
   - /etc/pgbackrest/server
-  - /etc/pgbackrest/conf.d/~postgres-operator/tls-ca.crt
-  - /etc/pgbackrest/conf.d/~postgres-operator_server.conf
+  - /etc/pgbackrest/conf.d/~ivory-operator/tls-ca.crt
+  - /etc/pgbackrest/conf.d/~ivory-operator_server.conf
   name: pgbackrest-config
   resources:
     limits:
@@ -634,8 +634,8 @@ func TestAddServerToInstancePod(t *testing.T) {
 		// Other volumes are untouched.
 		assert.Assert(t, marshalMatches(out.Volumes, `
 - name: other
-- name: postgres-data
-- name: postgres-wal
+- name: ivory-data
+- name: ivory-wal
 - name: pgbackrest-server
   projected:
     sources:
@@ -653,7 +653,7 @@ func TestAddServerToInstancePod(t *testing.T) {
 	t.Run("AddTablespaces", func(t *testing.T) {
 		assert.NilError(t, util.AddAndSetFeatureGates(string(util.TablespaceVolumes+"=true")))
 		clusterWithTablespaces := cluster.DeepCopy()
-		clusterWithTablespaces.Spec.InstanceSets = []v1beta1.PostgresInstanceSetSpec{
+		clusterWithTablespaces.Spec.InstanceSets = []v1beta1.IvoryInstanceSetSpec{
 			{
 				TablespaceVolumes: []v1beta1.TablespaceVolume{
 					{Name: "trial"},
@@ -696,9 +696,9 @@ func TestAddServerToInstancePod(t *testing.T) {
     name: pgbackrest-server
     readOnly: true
   - mountPath: /pgdata
-    name: postgres-data
+    name: ivory-data
   - mountPath: /pgwal
-    name: postgres-wal
+    name: ivory-wal
   - mountPath: /tablespaces/trial
     name: tablespace-trial
   - mountPath: /tablespaces/castle
@@ -730,8 +730,8 @@ func TestAddServerToInstancePod(t *testing.T) {
     }; export directory="$1" authority="$2" filename="$3"; export -f monitor; exec -a "$0" bash -ceu monitor
   - pgbackrest-config
   - /etc/pgbackrest/server
-  - /etc/pgbackrest/conf.d/~postgres-operator/tls-ca.crt
-  - /etc/pgbackrest/conf.d/~postgres-operator_server.conf
+  - /etc/pgbackrest/conf.d/~ivory-operator/tls-ca.crt
+  - /etc/pgbackrest/conf.d/~ivory-operator_server.conf
   name: pgbackrest-config
   resources: {}
   securityContext:
@@ -751,7 +751,7 @@ func TestAddServerToInstancePod(t *testing.T) {
 }
 
 func TestAddServerToRepoPod(t *testing.T) {
-	cluster := v1beta1.PostgresCluster{}
+	cluster := v1beta1.IvoryCluster{}
 	cluster.Name = "hippo"
 	cluster.Default()
 
@@ -841,8 +841,8 @@ func TestAddServerToRepoPod(t *testing.T) {
     }; export directory="$1" authority="$2" filename="$3"; export -f monitor; exec -a "$0" bash -ceu monitor
   - pgbackrest-config
   - /etc/pgbackrest/server
-  - /etc/pgbackrest/conf.d/~postgres-operator/tls-ca.crt
-  - /etc/pgbackrest/conf.d/~postgres-operator_server.conf
+  - /etc/pgbackrest/conf.d/~ivory-operator/tls-ca.crt
+  - /etc/pgbackrest/conf.d/~ivory-operator_server.conf
   name: pgbackrest-config
   resources:
     limits:
@@ -887,8 +887,8 @@ func getContainerNames(containers []corev1.Container) []string {
 }
 
 func TestReplicaCreateCommand(t *testing.T) {
-	cluster := new(v1beta1.PostgresCluster)
-	instance := new(v1beta1.PostgresInstanceSetSpec)
+	cluster := new(v1beta1.IvoryCluster)
+	instance := new(v1beta1.IvoryInstanceSetSpec)
 
 	t.Run("NoRepositories", func(t *testing.T) {
 		assert.Equal(t, 0, len(ReplicaCreateCommand(cluster, instance)))
@@ -921,7 +921,7 @@ func TestReplicaCreateCommand(t *testing.T) {
 
 	t.Run("Standby", func(t *testing.T) {
 		cluster := cluster.DeepCopy()
-		cluster.Spec.Standby = &v1beta1.PostgresStandbySpec{
+		cluster.Spec.Standby = &v1beta1.IvoryStandbySpec{
 			Enabled:  true,
 			RepoName: "repo7",
 		}
@@ -937,7 +937,7 @@ func TestSecret(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	existing := new(corev1.Secret)
 	intent := new(corev1.Secret)
 

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -20,15 +20,15 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
-func TestPostgreSQLParameters(t *testing.T) {
-	cluster := new(v1beta1.PostgresCluster)
-	parameters := new(postgres.Parameters)
+func TestIvorySQLParameters(t *testing.T) {
+	cluster := new(v1beta1.IvoryCluster)
+	parameters := new(ivory.Parameters)
 
-	PostgreSQL(cluster, parameters)
+	IvorySQL(cluster, parameters)
 	assert.DeepEqual(t, parameters.Mandatory.AsMap(), map[string]string{
 		"archive_mode":    "on",
 		"archive_command": `pgbackrest --stanza=db archive-push "%p"`,
@@ -39,12 +39,12 @@ func TestPostgreSQLParameters(t *testing.T) {
 		"archive_timeout": "60s",
 	})
 
-	cluster.Spec.Standby = &v1beta1.PostgresStandbySpec{
+	cluster.Spec.Standby = &v1beta1.IvoryStandbySpec{
 		Enabled:  true,
 		RepoName: "repo99",
 	}
 
-	PostgreSQL(cluster, parameters)
+	IvorySQL(cluster, parameters)
 	assert.DeepEqual(t, parameters.Mandatory.AsMap(), map[string]string{
 		"archive_mode":    "on",
 		"archive_command": `pgbackrest --stanza=db archive-push "%p"`,

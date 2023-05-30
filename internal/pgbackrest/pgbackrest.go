@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -28,10 +28,10 @@ import (
 const (
 	// errMsgConfigHashMismatch is the error message displayed when a configuration hash mismatch
 	// is detected while attempting stanza creation
-	errMsgConfigHashMismatch = "postgres operator error: pgBackRest config hash mismatch"
+	errMsgConfigHashMismatch = "ivory operator error: pgBackRest config hash mismatch"
 
-	// errMsgBackupDbMismatch is the error message returned from pgBackRest when PG versions
-	// or PG system identifiers do not match between the PG instance and the existing stanza
+	// errMsgBackupDbMismatch is the error message returned from pgBackRest when IVY versions
+	// or IVY system identifiers do not match between the IVY instance and the existing stanza
 	errMsgBackupDbMismatch = "backup and archive info files exist but do not match the database"
 )
 
@@ -43,7 +43,7 @@ type Executor func(
 // StanzaCreateOrUpgrade runs either the pgBackRest "stanza-create" or "stanza-upgrade" command
 // depending on the boolean value of the "upgrade" function parameter. This function is invoked
 // by the "reconcileStanzaCreate" function with "upgrade" set to false; if the stanza already
-// exists but the PG version has changed, pgBackRest will error with the "errMsgBackupDbMismatch"
+// exists but the IVY version has changed, pgBackRest will error with the "errMsgBackupDbMismatch"
 // error. If that occurs, we then rerun the command with "upgrade" set to true.
 // - https://github.com/pgbackrest/pgbackrest/blob/release/2.38/src/command/check/common.c#L154-L156
 // If the bool returned from this function is true, this indicates that a pgBackRest config hash

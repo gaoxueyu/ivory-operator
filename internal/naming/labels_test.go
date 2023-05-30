@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -43,21 +43,21 @@ func TestLabelsValid(t *testing.T) {
 	assert.Assert(t, nil == validation.IsQualifiedName(LabelPGBackRestRestore))
 	assert.Assert(t, nil == validation.IsQualifiedName(LabelPGBackRestRestoreConfig))
 	assert.Assert(t, nil == validation.IsQualifiedName(LabelPGMonitorDiscovery))
-	assert.Assert(t, nil == validation.IsQualifiedName(LabelPostgresUser))
+	assert.Assert(t, nil == validation.IsQualifiedName(LabelIvoryUser))
 	assert.Assert(t, nil == validation.IsQualifiedName(LabelStartupInstance))
 }
 
 func TestLabelValuesValid(t *testing.T) {
 	assert.Assert(t, nil == validation.IsValidLabelValue(DataPGAdmin))
 	assert.Assert(t, nil == validation.IsValidLabelValue(DataPGBackRest))
-	assert.Assert(t, nil == validation.IsValidLabelValue(DataPostgres))
+	assert.Assert(t, nil == validation.IsValidLabelValue(DataIvory))
 	assert.Assert(t, nil == validation.IsValidLabelValue(RolePatroniLeader))
 	assert.Assert(t, nil == validation.IsValidLabelValue(RolePatroniReplica))
 	assert.Assert(t, nil == validation.IsValidLabelValue(RolePGAdmin))
 	assert.Assert(t, nil == validation.IsValidLabelValue(RolePGBouncer))
-	assert.Assert(t, nil == validation.IsValidLabelValue(RolePostgresData))
-	assert.Assert(t, nil == validation.IsValidLabelValue(RolePostgresUser))
-	assert.Assert(t, nil == validation.IsValidLabelValue(RolePostgresWAL))
+	assert.Assert(t, nil == validation.IsValidLabelValue(RoleIvoryData))
+	assert.Assert(t, nil == validation.IsValidLabelValue(RoleIvoryUser))
+	assert.Assert(t, nil == validation.IsValidLabelValue(RoleIvoryWAL))
 	assert.Assert(t, nil == validation.IsValidLabelValue(RolePrimary))
 	assert.Assert(t, nil == validation.IsValidLabelValue(RoleReplica))
 	assert.Assert(t, nil == validation.IsValidLabelValue(string(BackupReplicaCreate)))

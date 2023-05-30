@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -23,18 +23,18 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	"github.com/crunchydata/postgres-operator/internal/config"
-	"github.com/crunchydata/postgres-operator/internal/initialize"
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/config"
+	"github.com/highgo/ivory-operator/internal/initialize"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // startupScript is the script for the configuration and startup of the pgAdmin service.
-// It is based on the start-pgadmin4.sh script from the Crunchy Containers Project.
+// It is based on the start-pgadmin4.sh script from the Highgo Containers Project.
 // Any required functions from common_lib.sh are added as required.
-// - https://github.com/CrunchyData/crunchy-containers/blob/master/bin/pgadmin4/start-pgadmin4.sh
-// - https://github.com/CrunchyData/crunchy-containers/blob/master/bin/common/common_lib.sh
-const startupScript = `CRUNCHY_DIR=${CRUNCHY_DIR:-'/opt/crunchy'}
+// - https://github.com/Highgo/highgo-containers/blob/master/bin/pgadmin4/start-pgadmin4.sh
+// - https://github.com/Highgo/highgo-containers/blob/master/bin/common/common_lib.sh
+const startupScript = `HIGHGO_DIR=${HIGHGO_DIR:-'/opt/highgo'}
 PGADMIN_DIR=/usr/lib/python3.6/site-packages/pgadmin4-web
 APACHE_PIDFILE='/tmp/httpd.pid'
 export PATH=$PATH:/usr/pgsql-*/bin
@@ -43,10 +43,10 @@ RED="\033[0;31m"
 GREEN="\033[0;32m"
 RESET="\033[0m"
 
-CRUNCHY_DIR=${CRUNCHY_DIR:-'/opt/crunchy'}
+HIGHGO_DIR=${HIGHGO_DIR:-'/opt/highgo'}
 
 function enable_debugging() {
-    if [[ ${CRUNCHY_DEBUG:-false} == "true" ]]
+    if [[ ${HIGHGO_DEBUG:-false} == "true" ]]
     then
         echo_info "Turning debugging on.."
         export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -103,13 +103,13 @@ then
         echo_err "ENABLE_TLS true but /certs/server.key or /certs/server.crt not found, aborting"
         exit 1
     fi
-    cp "${CRUNCHY_DIR}/conf/pgadmin-https.conf" /var/lib/pgadmin/pgadmin.conf
+    cp "${HIGHGO_DIR}/conf/pgadmin-https.conf" /var/lib/pgadmin/pgadmin.conf
 else
     echo_info "TLS disabled. Applying http configuration.."
-    cp "${CRUNCHY_DIR}/conf/pgadmin-http.conf" /var/lib/pgadmin/pgadmin.conf
+    cp "${HIGHGO_DIR}/conf/pgadmin-http.conf" /var/lib/pgadmin/pgadmin.conf
 fi
 
-cp "${CRUNCHY_DIR}/conf/config_local.py" /var/lib/pgadmin/config_local.py
+cp "${HIGHGO_DIR}/conf/config_local.py" /var/lib/pgadmin/config_local.py
 
 if [[ -z "${SERVER_PATH}" ]]
 then
@@ -140,7 +140,7 @@ wait`
 
 // ConfigMap populates a ConfigMap with the configuration needed to run pgAdmin.
 func ConfigMap(
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	outConfigMap *corev1.ConfigMap,
 ) error {
 	if inCluster.Spec.UserInterface == nil || inCluster.Spec.UserInterface.PGAdmin == nil {
@@ -167,7 +167,7 @@ func ConfigMap(
 
 // Pod populates a PodSpec with the container and volumes needed to run pgAdmin.
 func Pod(
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	inConfigMap *corev1.ConfigMap,
 	outPod *corev1.PodSpec, pgAdminVolume *corev1.PersistentVolumeClaim,
 ) {

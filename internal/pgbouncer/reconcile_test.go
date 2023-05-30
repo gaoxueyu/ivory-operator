@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -24,16 +24,16 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/crunchydata/postgres-operator/internal/pki"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/internal/util"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/pki"
+	"github.com/highgo/ivory-operator/internal/util"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestConfigMap(t *testing.T) {
 	t.Parallel()
 
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	config := new(corev1.ConfigMap)
 
 	t.Run("Disabled", func(t *testing.T) {
@@ -43,7 +43,7 @@ func TestConfigMap(t *testing.T) {
 		assert.DeepEqual(t, constant, config)
 	})
 
-	cluster.Spec.Proxy = new(v1beta1.PostgresProxySpec)
+	cluster.Spec.Proxy = new(v1beta1.IvoryProxySpec)
 	cluster.Spec.Proxy.PGBouncer = new(v1beta1.PGBouncerPodSpec)
 	cluster.Default()
 
@@ -63,7 +63,7 @@ func TestSecret(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	service := new(corev1.Service)
 	existing := new(corev1.Secret)
 	intent := new(corev1.Secret)
@@ -78,7 +78,7 @@ func TestSecret(t *testing.T) {
 		assert.DeepEqual(t, constant, intent)
 	})
 
-	cluster.Spec.Proxy = new(v1beta1.PostgresProxySpec)
+	cluster.Spec.Proxy = new(v1beta1.IvoryProxySpec)
 	cluster.Spec.Proxy.PGBouncer = new(v1beta1.PGBouncerPodSpec)
 	cluster.Default()
 
@@ -106,7 +106,7 @@ func TestPod(t *testing.T) {
 	// Initialize the feature gate
 	assert.NilError(t, util.AddAndSetFeatureGates(""))
 
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	configMap := new(corev1.ConfigMap)
 	primaryCertificate := new(corev1.SecretProjection)
 	secret := new(corev1.Secret)
@@ -123,7 +123,7 @@ func TestPod(t *testing.T) {
 	})
 
 	t.Run("Defaults", func(t *testing.T) {
-		cluster.Spec.Proxy = new(v1beta1.PostgresProxySpec)
+		cluster.Spec.Proxy = new(v1beta1.IvoryProxySpec)
 		cluster.Spec.Proxy.PGBouncer = new(v1beta1.PGBouncerPodSpec)
 		cluster.Default()
 
@@ -133,7 +133,7 @@ func TestPod(t *testing.T) {
 containers:
 - command:
   - pgbouncer
-  - /etc/pgbouncer/~postgres-operator.ini
+  - /etc/pgbouncer/~ivory-operator.ini
   name: pgbouncer
   ports:
   - containerPort: 5432
@@ -194,23 +194,23 @@ volumes:
     - configMap:
         items:
         - key: pgbouncer.ini
-          path: ~postgres-operator.ini
+          path: ~ivory-operator.ini
     - secret:
         items:
         - key: pgbouncer-users.txt
-          path: ~postgres-operator/users.txt
+          path: ~ivory-operator/users.txt
     - secret:
         items:
         - key: pgbouncer-frontend.ca-roots
-          path: ~postgres-operator/frontend-ca.crt
+          path: ~ivory-operator/frontend-ca.crt
         - key: pgbouncer-frontend.key
-          path: ~postgres-operator/frontend-tls.key
+          path: ~ivory-operator/frontend-tls.key
         - key: pgbouncer-frontend.crt
-          path: ~postgres-operator/frontend-tls.crt
+          path: ~ivory-operator/frontend-tls.crt
     - secret:
         items:
         - key: ca.crt
-          path: ~postgres-operator/backend-ca.crt
+          path: ~ivory-operator/backend-ca.crt
 		`))
 
 		// No change when called again.
@@ -239,7 +239,7 @@ volumes:
 containers:
 - command:
   - pgbouncer
-  - /etc/pgbouncer/~postgres-operator.ini
+  - /etc/pgbouncer/~ivory-operator.ini
   image: image-town
   imagePullPolicy: Always
   name: pgbouncer
@@ -309,22 +309,22 @@ volumes:
     - configMap:
         items:
         - key: pgbouncer.ini
-          path: ~postgres-operator.ini
+          path: ~ivory-operator.ini
     - secret:
         items:
         - key: pgbouncer-users.txt
-          path: ~postgres-operator/users.txt
+          path: ~ivory-operator/users.txt
     - secret:
         items:
         - key: k1
-          path: ~postgres-operator/frontend-tls.crt
+          path: ~ivory-operator/frontend-tls.crt
         - key: k2
-          path: ~postgres-operator/frontend-tls.key
+          path: ~ivory-operator/frontend-tls.key
         name: tls-name
     - secret:
         items:
         - key: ca.crt
-          path: ~postgres-operator/backend-ca.crt
+          path: ~ivory-operator/backend-ca.crt
 			`))
 	})
 
@@ -345,7 +345,7 @@ volumes:
 containers:
 - command:
   - pgbouncer
-  - /etc/pgbouncer/~postgres-operator.ini
+  - /etc/pgbouncer/~ivory-operator.ini
   image: image-town
   imagePullPolicy: Always
   name: pgbouncer
@@ -414,22 +414,22 @@ volumes:
     - configMap:
         items:
         - key: pgbouncer.ini
-          path: ~postgres-operator.ini
+          path: ~ivory-operator.ini
     - secret:
         items:
         - key: pgbouncer-users.txt
-          path: ~postgres-operator/users.txt
+          path: ~ivory-operator/users.txt
     - secret:
         items:
         - key: k1
-          path: ~postgres-operator/frontend-tls.crt
+          path: ~ivory-operator/frontend-tls.crt
         - key: k2
-          path: ~postgres-operator/frontend-tls.key
+          path: ~ivory-operator/frontend-tls.key
         name: tls-name
     - secret:
         items:
         - key: ca.crt
-          path: ~postgres-operator/backend-ca.crt
+          path: ~ivory-operator/backend-ca.crt
 		`))
 	})
 
@@ -462,31 +462,31 @@ volumes:
 	})
 }
 
-func TestPostgreSQL(t *testing.T) {
+func TestIvorySQL(t *testing.T) {
 	t.Parallel()
 
-	cluster := new(v1beta1.PostgresCluster)
-	hbas := new(postgres.HBAs)
+	cluster := new(v1beta1.IvoryCluster)
+	hbas := new(ivory.HBAs)
 
 	t.Run("Disabled", func(t *testing.T) {
-		PostgreSQL(cluster, hbas)
+		IvorySQL(cluster, hbas)
 
 		// No change when PgBouncer is not requested in the spec.
-		assert.DeepEqual(t, hbas, new(postgres.HBAs))
+		assert.DeepEqual(t, hbas, new(ivory.HBAs))
 	})
 
 	t.Run("Enabled", func(t *testing.T) {
-		cluster.Spec.Proxy = new(v1beta1.PostgresProxySpec)
+		cluster.Spec.Proxy = new(v1beta1.IvoryProxySpec)
 		cluster.Spec.Proxy.PGBouncer = new(v1beta1.PGBouncerPodSpec)
 		cluster.Default()
 
-		PostgreSQL(cluster, hbas)
+		IvorySQL(cluster, hbas)
 
 		assert.DeepEqual(t, hbas,
-			&postgres.HBAs{
-				Mandatory: postgresqlHBAs(),
+			&ivory.HBAs{
+				Mandatory: ivorysqlHBAs(),
 			},
-			// postgres.HostBasedAuthentication has unexported fields. Call String() to compare.
-			cmp.Transformer("", postgres.HostBasedAuthentication.String))
+			// ivory.HostBasedAuthentication has unexported fields. Call String() to compare.
+			cmp.Transformer("", ivory.HostBasedAuthentication.String))
 	})
 }

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -23,7 +23,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/logging"
 )
 
 // API defines a general interface for interacting with the Patroni API.
@@ -180,7 +180,7 @@ func (exec Executor) RestartPendingMembers(ctx context.Context, role, scope stri
 }
 
 // GetTimeline gets the patronictl status and returns the timeline,
-// currently the only information required by PGO.
+// currently the only information required by IVO.
 // Returns zero if it runs into errors or cannot find a running Leader pod
 // to get the up-to-date timeline from.
 func (exec Executor) GetTimeline(ctx context.Context) (int64, error) {

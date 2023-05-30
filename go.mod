@@ -1,4 +1,4 @@
-module github.com/crunchydata/postgres-operator
+module github.com/highgo/ivory-operator
 
 go 1.19
 

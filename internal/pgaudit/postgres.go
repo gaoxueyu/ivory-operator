@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,8 +19,8 @@ import (
 	"context"
 	"strings"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/logging"
 )
 
 // When the pgAudit shared library is not loaded, the extension cannot be
@@ -41,13 +41,13 @@ import (
 //  5. Roles and privileges can be created, dropped, granted, and revoked, but
 //     the "DROP OWNED" command fails.
 
-// EnableInPostgreSQL installs pgAudit triggers into every database.
-func EnableInPostgreSQL(ctx context.Context, exec postgres.Executor) error {
+// EnableInIvorySQL installs pgAudit triggers into every database.
+func EnableInIvorySQL(ctx context.Context, exec ivory.Executor) error {
 	log := logging.FromContext(ctx)
 
 	stdout, stderr, err := exec.ExecInAllDatabases(ctx,
 		// Quiet the NOTICE from IF EXISTS, and install the pgAudit event triggers.
-		// - https://www.postgresql.org/docs/current/runtime-config-client.html
+		// - https://www.ivorysql.org/docs/current/runtime-config-client.html
 		// - https://github.com/pgaudit/pgaudit#settings
 		`SET client_min_messages = WARNING; CREATE EXTENSION IF NOT EXISTS pgaudit;`,
 		map[string]string{
@@ -60,13 +60,13 @@ func EnableInPostgreSQL(ctx context.Context, exec postgres.Executor) error {
 	return err
 }
 
-// PostgreSQLParameters sets the parameters required by pgAudit.
-func PostgreSQLParameters(outParameters *postgres.Parameters) {
+// IvorySQLParameters sets the parameters required by pgAudit.
+func IvorySQLParameters(outParameters *ivory.Parameters) {
 
-	// Load the shared library when PostgreSQL starts.
-	// PostgreSQL must be restarted when changing this value.
+	// Load the shared library when IvorySQL starts.
+	// IvorySQL must be restarted when changing this value.
 	// - https://github.com/pgaudit/pgaudit#settings
-	// - https://www.postgresql.org/docs/current/runtime-config-client.html
+	// - https://www.ivorysql.org/docs/current/runtime-config-client.html
 	shared := outParameters.Mandatory.Value("shared_preload_libraries")
 	outParameters.Mandatory.Add("shared_preload_libraries",
 		strings.TrimPrefix(shared+",pgaudit", ","))

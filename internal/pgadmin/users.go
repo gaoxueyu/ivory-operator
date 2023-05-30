@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -23,9 +23,9 @@ import (
 	"io"
 	"strings"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 type Executor func(
@@ -37,8 +37,8 @@ type Executor func(
 // blocks that user from logging in to pgAdmin. The pgAdmin configuration
 // database must exist before calling this.
 func WriteUsersInPGAdmin(
-	ctx context.Context, cluster *v1beta1.PostgresCluster, exec Executor,
-	users []v1beta1.PostgresUserSpec, passwords map[string]string,
+	ctx context.Context, cluster *v1beta1.IvoryCluster, exec Executor,
+	users []v1beta1.IvoryUserSpec, passwords map[string]string,
 ) error {
 	primary := naming.ClusterPrimaryService(cluster)
 
@@ -114,7 +114,7 @@ with create_app().app_context():`,
 		// a non-blank password are allowed to login.
 		//
 		// The "internal" authentication source requires that username and email
-		// be the same and be an email address. Append "@pgo" to the username
+		// be the same and be an email address. Append "@ivyo" to the username
 		// to pass login validation.
 		// - https://github.com/pgadmin-org/pgadmin4/blob/REL-4_30/web/pgadmin/authenticate/internal.py#L88
 		// - https://github.com/pgadmin-org/pgadmin4/blob/REL-4_30/web/pgadmin/utils/validation_utils.py#L13
@@ -128,7 +128,7 @@ with create_app().app_context():`,
             continue
 
         data = json.loads(line)
-        address = data['username'] + '@pgo'
+        address = data['username'] + '@ivyo'
         user = (
             db.session.query(User).filter_by(username=address).first() or
             User()
@@ -175,7 +175,7 @@ with create_app().app_context():`,
             ).order_by("id").first() or
             ServerGroup()
         )
-        group.name = "Crunchy PostgreSQL Operator"
+        group.name = "Highgo IvorySQL Operator"
         group.user_id = user.id
         db.session.add(group)
         db.session.commit()`,
@@ -200,7 +200,7 @@ with create_app().app_context():`,
         server.port = cluster.port
         server.servergroup_id = group.id
         server.user_id = user.id
-        server.maintenance_db = "postgres"
+        server.maintenance_db = "ivory"
         server.ssl_mode = "prefer"`,
 
 		// Encrypt the Server password with the User's plaintext password.

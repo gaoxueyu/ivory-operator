@@ -1,7 +1,7 @@
 package upgradecheck
 
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -33,9 +33,9 @@ import (
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 
-	"github.com/crunchydata/postgres-operator/internal/controller/runtime"
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/controller/runtime"
+	"github.com/highgo/ivory-operator/internal/logging"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 type fakeClientWithError struct {
@@ -81,15 +81,15 @@ func setupDeploymentID(t *testing.T) string {
 	return deploymentID
 }
 
-func setupFakeClientWithPGOScheme(t *testing.T, includeCluster bool) crclient.Client {
+func setupFakeClientWithIVYOScheme(t *testing.T, includeCluster bool) crclient.Client {
 	t.Helper()
-	pgoScheme, err := runtime.CreatePostgresOperatorScheme()
+	ivyoScheme, err := runtime.CreateIvoryOperatorScheme()
 	if err != nil {
 		t.Fatal(err)
 	}
 	if includeCluster {
-		pc := &v1beta1.PostgresClusterList{
-			Items: []v1beta1.PostgresCluster{
+		pc := &v1beta1.IvoryClusterList{
+			Items: []v1beta1.IvoryCluster{
 				{
 					ObjectMeta: metav1.ObjectMeta{
 						Name: "hippo",
@@ -102,9 +102,9 @@ func setupFakeClientWithPGOScheme(t *testing.T, includeCluster bool) crclient.Cl
 				},
 			},
 		}
-		return fake.NewClientBuilder().WithScheme(pgoScheme).WithLists(pc).Build()
+		return fake.NewClientBuilder().WithScheme(ivyoScheme).WithLists(pc).Build()
 	}
-	return fake.NewClientBuilder().WithScheme(pgoScheme).Build()
+	return fake.NewClientBuilder().WithScheme(ivyoScheme).Build()
 }
 
 func setupVersionServer(t *testing.T, works bool) (version.Info, *httptest.Server) {
@@ -142,7 +142,7 @@ func setupLogCapture(ctx context.Context) (context.Context, *[]string) {
 }
 
 // setupNamespace creates a namespace that will be deleted by t.Cleanup.
-// For upgradechecking, this namespace is set to `postgres-operator`,
+// For upgradechecking, this namespace is set to `ivory-operator`,
 // which sometimes is created by other parts of the testing apparatus,
 // cf., the createnamespace call in `make check-envtest-existing`.
 // When creation fails, it calls t.Fatal. The caller may delete the namespace
@@ -150,8 +150,8 @@ func setupLogCapture(ctx context.Context) (context.Context, *[]string) {
 func setupNamespace(t testing.TB, cc crclient.Client) {
 	t.Helper()
 	ns := &corev1.Namespace{}
-	ns.Name = "postgres-operator"
-	ns.Labels = map[string]string{"postgres-operator-test": t.Name()}
+	ns.Name = "ivory-operator"
+	ns.Labels = map[string]string{"ivory-operator-test": t.Name()}
 
 	ctx := context.Background()
 	exists := &corev1.Namespace{}
