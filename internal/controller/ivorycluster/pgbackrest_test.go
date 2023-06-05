@@ -70,9 +70,9 @@ func fakeIvoryCluster(clusterName, namespace, clusterUID string,
 			UID:       types.UID(clusterUID),
 		},
 		Spec: v1beta1.IvoryClusterSpec{
-			Port:         initialize.Int32(5432),
-			Shutdown:     initialize.Bool(false),
-			IvoryVersion: 13,
+			Port:            initialize.Int32(5432),
+			Shutdown:        initialize.Bool(false),
+			PostgresVersion: 13,
 			ImagePullSecrets: []corev1.LocalObjectReference{{
 				Name: "myImagePullSecret"},
 			},
@@ -2278,8 +2278,8 @@ func TestCopyConfigurationResources(t *testing.T) {
 				UID:       types.UID(clusterUID),
 			},
 			Spec: v1beta1.IvoryClusterSpec{
-				IvoryVersion: 13,
-				Image:        "example.com/highgo-ivory-ha:test",
+				PostgresVersion: 13,
+				Image:           "example.com/highgo-ivory-ha:test",
 				InstanceSets: []v1beta1.IvoryInstanceSetSpec{{
 					Name: "instance1",
 					DataVolumeClaimSpec: corev1.PersistentVolumeClaimSpec{
@@ -2323,8 +2323,8 @@ func TestCopyConfigurationResources(t *testing.T) {
 				UID:       types.UID(clusterUID),
 			},
 			Spec: v1beta1.IvoryClusterSpec{
-				IvoryVersion: 13,
-				Image:        "example.com/highgo-ivory-ha:test",
+				PostgresVersion: 13,
+				Image:           "example.com/highgo-ivory-ha:test",
 				DataSource: &v1beta1.DataSource{
 					IvoryCluster: &v1beta1.IvoryClusterDataSource{
 						ClusterName:      scName,

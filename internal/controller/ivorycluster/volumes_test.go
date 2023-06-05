@@ -402,8 +402,8 @@ func TestReconcileConfigureExistingPVCs(t *testing.T) {
 			Namespace: ns.GetName(),
 		},
 		Spec: v1beta1.IvoryClusterSpec{
-			IvoryVersion: 13,
-			Image:        "example.com/highgo-ivory-ha:test",
+			PostgresVersion: 13,
+			Image:           "example.com/highgo-ivory-ha:test",
 			DataSource: &v1beta1.DataSource{
 				Volumes: &v1beta1.DataSourceVolumes{},
 			},
@@ -662,7 +662,7 @@ func TestReconcileMoveDirectories(t *testing.T) {
 			Namespace: ns.GetName(),
 		},
 		Spec: v1beta1.IvoryClusterSpec{
-			IvoryVersion:    13,
+			PostgresVersion: 13,
 			Image:           "example.com/highgo-ivory-ha:test",
 			ImagePullPolicy: corev1.PullAlways,
 			ImagePullSecrets: []corev1.LocalObjectReference{{

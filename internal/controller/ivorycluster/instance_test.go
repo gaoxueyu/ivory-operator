@@ -1444,7 +1444,7 @@ func TestGenerateInstanceStatefulSetIntent(t *testing.T) {
 					Name: "hippo",
 				},
 				Spec: v1beta1.IvoryClusterSpec{
-					IvoryVersion:                13,
+					PostgresVersion:             13,
 					DisableDefaultPodScheduling: initialize.Bool(true),
 					InstanceSets: []v1beta1.IvoryInstanceSetSpec{{
 						Name:                "instance1",

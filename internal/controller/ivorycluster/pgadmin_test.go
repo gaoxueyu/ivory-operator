@@ -851,7 +851,7 @@ func pgAdminTestCluster(ns corev1.Namespace) *v1beta1.IvoryCluster {
 			Namespace: ns.Name,
 		},
 		Spec: v1beta1.IvoryClusterSpec{
-			IvoryVersion: 13,
+			PostgresVersion: 13,
 			InstanceSets: []v1beta1.IvoryInstanceSetSpec{{
 				DataVolumeClaimSpec: testVolumeClaimSpec(),
 			}},
