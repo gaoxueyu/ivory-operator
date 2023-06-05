@@ -100,7 +100,7 @@ rules:
 - apiGroups:
   - ivory-operator.highgo.com
   resources:
-  - ivyupgrades/finalizers
+  - ivoryclusters/finalizers
   - ivyupgrades/finalizers
   verbs:
   - update
