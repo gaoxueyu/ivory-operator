@@ -336,7 +336,7 @@ generate-crd-docs: ## Generate crd-docs
 generate-deepcopy: ## Generate deepcopy functions
 	GOBIN='$(CURDIR)/hack/tools' ./hack/controller-generator.sh \
 		object:headerFile='hack/boilerplate.go.txt' \
-		paths='./pkg/apis/postgres-operator.crunchydata.com/...'
+		paths='./pkg/apis/ivory-operator.highgo.com/...'
 
 .PHONY: generate-rbac
 generate-rbac: ## Generate rbac
