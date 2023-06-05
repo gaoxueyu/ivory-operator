@@ -154,7 +154,7 @@ deploy-dev: createnamespaces
 .PHONY: build-postgres-operator
 build-postgres-operator: ## Build the postgres-operator binary
 	$(GO_BUILD) -ldflags '-X "main.versionString=$(PGO_VERSION)"' \
-		-o bin/postgres-operator ./cmd/postgres-operator
+		-o bin/postgres-operator ./cmd/ivory-operator
 
 ##@ Build - Images
 .PHONY: build-crunchy-postgres-exporter-image
