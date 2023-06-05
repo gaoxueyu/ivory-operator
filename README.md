@@ -1,4 +1,4 @@
-<h1 align="center">PGO: The Postgres Operator from Crunchy Data</h1>
+<h1 align="center">IVYO: The Postgres Operator from Crunchy Data</h1>
 <p align="center">
   <img width="150" src="./docs/static/logos/pgo.svg" alt="PGO: The Postgres Operator from Crunchy Data"/>
 </p>
