@@ -103,9 +103,6 @@ rules:
   - ivoryclusters/finalizers
   - ivyupgrades/finalizers
   verbs:
-  - get
-  - list
-  - watch
   - update
 - apiGroups:
   - ivory-operator.highgo.com
