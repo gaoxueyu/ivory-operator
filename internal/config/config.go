@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // defaultFromEnv reads the environment variable key when value is empty.
@@ -39,14 +39,14 @@ func defaultFromEnv(value, key string) string {
 // - https://osbs.readthedocs.io/en/latest/users.html#pullspec-locations
 
 // PGBackRestContainerImage returns the container image to use for pgBackRest.
-func PGBackRestContainerImage(cluster *v1beta1.PostgresCluster) string {
+func PGBackRestContainerImage(cluster *v1beta1.IvoryCluster) string {
 	image := cluster.Spec.Backups.PGBackRest.Image
 
 	return defaultFromEnv(image, "RELATED_IMAGE_PGBACKREST")
 }
 
 // PGAdminContainerImage returns the container image to use for pgAdmin.
-func PGAdminContainerImage(cluster *v1beta1.PostgresCluster) string {
+func PGAdminContainerImage(cluster *v1beta1.IvoryCluster) string {
 	var image string
 	if cluster.Spec.UserInterface != nil &&
 		cluster.Spec.UserInterface.PGAdmin != nil {
@@ -57,7 +57,7 @@ func PGAdminContainerImage(cluster *v1beta1.PostgresCluster) string {
 }
 
 // PGBouncerContainerImage returns the container image to use for pgBouncer.
-func PGBouncerContainerImage(cluster *v1beta1.PostgresCluster) string {
+func PGBouncerContainerImage(cluster *v1beta1.IvoryCluster) string {
 	var image string
 	if cluster.Spec.Proxy != nil &&
 		cluster.Spec.Proxy.PGBouncer != nil {
@@ -68,8 +68,8 @@ func PGBouncerContainerImage(cluster *v1beta1.PostgresCluster) string {
 }
 
 // PGExporterContainerImage returns the container image to use for the
-// PostgreSQL Exporter.
-func PGExporterContainerImage(cluster *v1beta1.PostgresCluster) string {
+// IvorySQL Exporter.
+func PGExporterContainerImage(cluster *v1beta1.IvoryCluster) string {
 	var image string
 	if cluster.Spec.Monitoring != nil &&
 		cluster.Spec.Monitoring.PGMonitor != nil &&
@@ -80,10 +80,10 @@ func PGExporterContainerImage(cluster *v1beta1.PostgresCluster) string {
 	return defaultFromEnv(image, "RELATED_IMAGE_PGEXPORTER")
 }
 
-// PostgresContainerImage returns the container image to use for PostgreSQL.
-func PostgresContainerImage(cluster *v1beta1.PostgresCluster) string {
+// IvoryContainerImage returns the container image to use for IvorySQL.
+func IvoryContainerImage(cluster *v1beta1.IvoryCluster) string {
 	image := cluster.Spec.Image
-	key := "RELATED_IMAGE_POSTGRES_" + fmt.Sprint(cluster.Spec.PostgresVersion)
+	key := "RELATED_IMAGE_IVORY_" + fmt.Sprint(cluster.Spec.PostgresVersion)
 
 	if version := cluster.Spec.PostGISVersion; version != "" {
 		key += "_GIS_" + version
@@ -92,9 +92,9 @@ func PostgresContainerImage(cluster *v1beta1.PostgresCluster) string {
 	return defaultFromEnv(image, key)
 }
 
-// PGONamespace returns the namespace where the PGO is running,
+// IVYONamespace returns the namespace where the IVO is running,
 // based on the env var from the DownwardAPI
 // If no env var is found, returns ""
-func PGONamespace() string {
-	return os.Getenv("PGO_NAMESPACE")
+func IVYONamespace() string {
+	return os.Getenv("IVYO_NAMESPACE")
 }

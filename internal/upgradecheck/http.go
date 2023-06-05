@@ -1,5 +1,5 @@
 /*
- Copyright 2017 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2017 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -27,7 +27,7 @@ import (
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/logging"
 )
 
 var (
@@ -49,7 +49,7 @@ var (
 
 const (
 	// upgradeCheckURL can be set using the CHECK_FOR_UPGRADES_URL env var
-	upgradeCheckURL = "https://operator-maestro.crunchydata.com/pgo-versions"
+	upgradeCheckURL = ""
 )
 
 type HTTPClient interface {

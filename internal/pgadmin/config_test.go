@@ -10,9 +10,9 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/testing/cmp"
-	"github.com/crunchydata/postgres-operator/internal/testing/require"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/testing/cmp"
+	"github.com/highgo/ivory-operator/internal/testing/require"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestPodConfigFiles(t *testing.T) {
@@ -39,7 +39,7 @@ func TestPodConfigFiles(t *testing.T) {
 - configMap:
     items:
     - key: pgadmin-settings.json
-      path: ~postgres-operator/pgadmin.json
+      path: ~ivory-operator/pgadmin.json
     name: some-cm
 	`))
 }
@@ -54,12 +54,12 @@ func TestStartupCommand(t *testing.T) {
 - |
   import glob, json, re, os
   DEFAULT_BINARY_PATHS = {'pg': sorted([''] + glob.glob('/usr/pgsql-*/bin')).pop()}
-  with open('/etc/pgadmin/conf.d/~postgres-operator/pgadmin.json') as _f:
+  with open('/etc/pgadmin/conf.d/~ivory-operator/pgadmin.json') as _f:
       _conf, _data = re.compile(r'[A-Z_]+'), json.load(_f)
       if type(_data) is dict:
           globals().update({k: v for k, v in _data.items() if _conf.fullmatch(k)})
-  if os.path.isfile('/etc/pgadmin/conf.d/~postgres-operator/ldap-bind-password'):
-      with open('/etc/pgadmin/conf.d/~postgres-operator/ldap-bind-password') as _f:
+  if os.path.isfile('/etc/pgadmin/conf.d/~ivory-operator/ldap-bind-password'):
+      with open('/etc/pgadmin/conf.d/~ivory-operator/ldap-bind-password') as _f:
           LDAP_BIND_PASSWORD = _f.read()
 `))
 

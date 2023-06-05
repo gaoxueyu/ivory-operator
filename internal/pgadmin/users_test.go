@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -28,19 +28,19 @@ import (
 	"gotest.tools/v3/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/initialize"
-	"github.com/crunchydata/postgres-operator/internal/testing/require"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/initialize"
+	"github.com/highgo/ivory-operator/internal/testing/require"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestWriteUsersInPGAdmin(t *testing.T) {
 	ctx := context.Background()
-	cluster := &v1beta1.PostgresCluster{
+	cluster := &v1beta1.IvoryCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "testcluster",
 			Namespace: "testnamespace",
 		},
-		Spec: v1beta1.PostgresClusterSpec{
+		Spec: v1beta1.IvoryClusterSpec{
 			Port: initialize.Int32(5432),
 		},
 	}
@@ -101,7 +101,7 @@ with create_app().app_context():
             continue
 
         data = json.loads(line)
-        address = data['username'] + '@pgo'
+        address = data['username'] + '@ivyo'
         user = (
             db.session.query(User).filter_by(username=address).first() or
             User()
@@ -125,7 +125,7 @@ with create_app().app_context():
             ).order_by("id").first() or
             ServerGroup()
         )
-        group.name = "Crunchy PostgreSQL Operator"
+        group.name = "Highgo IvorySQL Operator"
         group.user_id = user.id
         db.session.add(group)
         db.session.commit()
@@ -144,7 +144,7 @@ with create_app().app_context():
         server.port = cluster.port
         server.servergroup_id = group.id
         server.user_id = user.id
-        server.maintenance_db = "postgres"
+        server.maintenance_db = "ivory"
         server.ssl_mode = "prefer"
 
         server.username = data['username']
@@ -218,7 +218,7 @@ with create_app().app_context():
 		assert.NilError(t, WriteUsersInPGAdmin(ctx, cluster, exec, nil, nil))
 		assert.Equal(t, calls, 1)
 
-		assert.NilError(t, WriteUsersInPGAdmin(ctx, cluster, exec, []v1beta1.PostgresUserSpec{}, nil))
+		assert.NilError(t, WriteUsersInPGAdmin(ctx, cluster, exec, []v1beta1.IvoryUserSpec{}, nil))
 		assert.Equal(t, calls, 2)
 
 		assert.NilError(t, WriteUsersInPGAdmin(ctx, cluster, exec, nil, map[string]string{}))
@@ -243,10 +243,10 @@ with create_app().app_context():
 		}
 
 		assert.NilError(t, WriteUsersInPGAdmin(ctx, cluster, exec,
-			[]v1beta1.PostgresUserSpec{
+			[]v1beta1.IvoryUserSpec{
 				{
 					Name:      "user-no-options",
-					Databases: []v1beta1.PostgresIdentifier{"db1"},
+					Databases: []v1beta1.IvoryIdentifier{"db1"},
 				},
 				{
 					Name:    "user-no-databases",

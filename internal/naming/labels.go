@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -20,9 +20,9 @@ import (
 )
 
 const (
-	labelPrefix = "postgres-operator.crunchydata.com/"
+	labelPrefix = "ivory-operator.highgo.com/"
 
-	// LabelCluster et al. provides the fundamental labels for Postgres instances
+	// LabelCluster et al. provides the fundamental labels for Ivory instances
 	LabelCluster     = labelPrefix + "cluster"
 	LabelInstance    = labelPrefix + "instance"
 	LabelInstanceSet = labelPrefix + "instance-set"
@@ -36,7 +36,7 @@ const (
 	// LabelClusterCertificate is used to identify a secret containing a cluster certificate
 	LabelClusterCertificate = labelPrefix + "cluster-certificate"
 
-	// LabelData is used to identify Pods and Volumes store Postgres data.
+	// LabelData is used to identify Pods and Volumes store Ivory data.
 	LabelData = labelPrefix + "data"
 
 	// LabelMoveJob is used to identify a directory move Job.
@@ -83,10 +83,10 @@ const (
 
 	// LabelPGMonitorDiscovery is the label added to Pods running the "exporter" container to
 	// support discovery by Prometheus according to pgMonitor configuration
-	LabelPGMonitorDiscovery = labelPrefix + "crunchy-postgres-exporter"
+	LabelPGMonitorDiscovery = labelPrefix + "highgo-ivory-exporter"
 
-	// LabelPostgresUser identifies the PostgreSQL user an object is for or about.
-	LabelPostgresUser = labelPrefix + "pguser"
+	// LabelIvoryUser identifies the IvorySQL user an object is for or about.
+	LabelIvoryUser = labelPrefix + "pguser"
 
 	// LabelStartupInstance is used to indicate the startup instance associated with a resource
 	LabelStartupInstance = labelPrefix + "startup-instance"
@@ -108,14 +108,14 @@ const (
 	// RolePGAdmin is the LabelRole applied to pgAdmin objects.
 	RolePGAdmin = "pgadmin"
 
-	// RolePostgresData is the LabelRole applied to PostgreSQL data volumes.
-	RolePostgresData = "pgdata"
+	// RoleIvoryData is the LabelRole applied to IvorySQL data volumes.
+	RoleIvoryData = "pgdata"
 
-	// RolePostgresUser is the LabelRole applied to PostgreSQL user secrets.
-	RolePostgresUser = "pguser"
+	// RoleIvoryUser is the LabelRole applied to IvorySQL user secrets.
+	RoleIvoryUser = "pguser"
 
-	// RolePostgresWAL is the LabelRole applied to PostgreSQL WAL volumes.
-	RolePostgresWAL = "pgwal"
+	// RoleIvoryWAL is the LabelRole applied to IvorySQL WAL volumes.
+	RoleIvoryWAL = "pgwal"
 
 	// RoleMonitoring is the LabelRole applied to Monitoring resources
 	RoleMonitoring = "monitoring"
@@ -128,8 +128,8 @@ const (
 	// DataPGBackRest is a LabelData value that indicates the object has pgBackRest data.
 	DataPGBackRest = "pgbackrest"
 
-	// DataPostgres is a LabelData value that indicates the object has PostgreSQL data.
-	DataPostgres = "postgres"
+	// DataIvory is a LabelData value that indicates the object has IvorySQL data.
+	DataIvory = "ivory"
 )
 
 // BackupJobType represents different types of backups (e.g. ad-hoc backups, scheduled backups,
@@ -241,7 +241,7 @@ func PGBackRestSelector(clusterName string) labels.Selector {
 }
 
 // PGBackRestConfigLabels provides labels for the pgBackRest configuration created and used by
-// the PostgreSQL Operator
+// the IvorySQL Operator
 func PGBackRestConfigLabels(clusterName string) labels.Set {
 	repoLabels := PGBackRestLabels(clusterName)
 	operatorConfigLabels := map[string]string{

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -22,14 +22,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/resource"
 
-	"github.com/crunchydata/postgres-operator/internal/testing/cmp"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/testing/cmp"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestConfigMap(t *testing.T) {
 	t.Parallel()
 
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	config := new(corev1.ConfigMap)
 
 	t.Run("Disabled", func(t *testing.T) {
@@ -80,7 +80,7 @@ pgadmin-settings.json: |
 func TestPod(t *testing.T) {
 	t.Parallel()
 
-	cluster := new(v1beta1.PostgresCluster)
+	cluster := new(v1beta1.IvoryCluster)
 	config := new(corev1.ConfigMap)
 	pod := new(corev1.PodSpec)
 	pvc := new(corev1.PersistentVolumeClaim)
@@ -108,7 +108,7 @@ containers:
   - bash
   - -c
   - |-
-    CRUNCHY_DIR=${CRUNCHY_DIR:-'/opt/crunchy'}
+    HIGHGO_DIR=${HIGHGO_DIR:-'/opt/highgo'}
     PGADMIN_DIR=/usr/lib/python3.6/site-packages/pgadmin4-web
     APACHE_PIDFILE='/tmp/httpd.pid'
     export PATH=$PATH:/usr/pgsql-*/bin
@@ -117,10 +117,10 @@ containers:
     GREEN="\033[0;32m"
     RESET="\033[0m"
 
-    CRUNCHY_DIR=${CRUNCHY_DIR:-'/opt/crunchy'}
+    HIGHGO_DIR=${HIGHGO_DIR:-'/opt/highgo'}
 
     function enable_debugging() {
-        if [[ ${CRUNCHY_DEBUG:-false} == "true" ]]
+        if [[ ${HIGHGO_DEBUG:-false} == "true" ]]
         then
             echo_info "Turning debugging on.."
             export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -177,13 +177,13 @@ containers:
             echo_err "ENABLE_TLS true but /certs/server.key or /certs/server.crt not found, aborting"
             exit 1
         fi
-        cp "${CRUNCHY_DIR}/conf/pgadmin-https.conf" /var/lib/pgadmin/pgadmin.conf
+        cp "${HIGHGO_DIR}/conf/pgadmin-https.conf" /var/lib/pgadmin/pgadmin.conf
     else
         echo_info "TLS disabled. Applying http configuration.."
-        cp "${CRUNCHY_DIR}/conf/pgadmin-http.conf" /var/lib/pgadmin/pgadmin.conf
+        cp "${HIGHGO_DIR}/conf/pgadmin-http.conf" /var/lib/pgadmin/pgadmin.conf
     fi
 
-    cp "${CRUNCHY_DIR}/conf/config_local.py" /var/lib/pgadmin/config_local.py
+    cp "${HIGHGO_DIR}/conf/config_local.py" /var/lib/pgadmin/config_local.py
 
     if [[ -z "${SERVER_PATH}" ]]
     then
@@ -267,12 +267,12 @@ initContainers:
   - |
     import glob, json, re, os
     DEFAULT_BINARY_PATHS = {'pg': sorted([''] + glob.glob('/usr/pgsql-*/bin')).pop()}
-    with open('/etc/pgadmin/conf.d/~postgres-operator/pgadmin.json') as _f:
+    with open('/etc/pgadmin/conf.d/~ivory-operator/pgadmin.json') as _f:
         _conf, _data = re.compile(r'[A-Z_]+'), json.load(_f)
         if type(_data) is dict:
             globals().update({k: v for k, v in _data.items() if _conf.fullmatch(k)})
-    if os.path.isfile('/etc/pgadmin/conf.d/~postgres-operator/ldap-bind-password'):
-        with open('/etc/pgadmin/conf.d/~postgres-operator/ldap-bind-password') as _f:
+    if os.path.isfile('/etc/pgadmin/conf.d/~ivory-operator/ldap-bind-password'):
+        with open('/etc/pgadmin/conf.d/~ivory-operator/ldap-bind-password') as _f:
             LDAP_BIND_PASSWORD = _f.read()
   name: pgadmin-startup
   resources: {}
@@ -303,7 +303,7 @@ volumes:
     - configMap:
         items:
         - key: pgadmin-settings.json
-          path: ~postgres-operator/pgadmin.json
+          path: ~ivory-operator/pgadmin.json
 - emptyDir:
     medium: Memory
     sizeLimit: 32Ki
@@ -342,7 +342,7 @@ containers:
   - bash
   - -c
   - |-
-    CRUNCHY_DIR=${CRUNCHY_DIR:-'/opt/crunchy'}
+    HIGHGO_DIR=${HIGHGO_DIR:-'/opt/highgo'}
     PGADMIN_DIR=/usr/lib/python3.6/site-packages/pgadmin4-web
     APACHE_PIDFILE='/tmp/httpd.pid'
     export PATH=$PATH:/usr/pgsql-*/bin
@@ -351,10 +351,10 @@ containers:
     GREEN="\033[0;32m"
     RESET="\033[0m"
 
-    CRUNCHY_DIR=${CRUNCHY_DIR:-'/opt/crunchy'}
+    HIGHGO_DIR=${HIGHGO_DIR:-'/opt/highgo'}
 
     function enable_debugging() {
-        if [[ ${CRUNCHY_DEBUG:-false} == "true" ]]
+        if [[ ${HIGHGO_DEBUG:-false} == "true" ]]
         then
             echo_info "Turning debugging on.."
             export PS4='+(${BASH_SOURCE}:${LINENO})> ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
@@ -411,13 +411,13 @@ containers:
             echo_err "ENABLE_TLS true but /certs/server.key or /certs/server.crt not found, aborting"
             exit 1
         fi
-        cp "${CRUNCHY_DIR}/conf/pgadmin-https.conf" /var/lib/pgadmin/pgadmin.conf
+        cp "${HIGHGO_DIR}/conf/pgadmin-https.conf" /var/lib/pgadmin/pgadmin.conf
     else
         echo_info "TLS disabled. Applying http configuration.."
-        cp "${CRUNCHY_DIR}/conf/pgadmin-http.conf" /var/lib/pgadmin/pgadmin.conf
+        cp "${HIGHGO_DIR}/conf/pgadmin-http.conf" /var/lib/pgadmin/pgadmin.conf
     fi
 
-    cp "${CRUNCHY_DIR}/conf/config_local.py" /var/lib/pgadmin/config_local.py
+    cp "${HIGHGO_DIR}/conf/config_local.py" /var/lib/pgadmin/config_local.py
 
     if [[ -z "${SERVER_PATH}" ]]
     then
@@ -505,12 +505,12 @@ initContainers:
   - |
     import glob, json, re, os
     DEFAULT_BINARY_PATHS = {'pg': sorted([''] + glob.glob('/usr/pgsql-*/bin')).pop()}
-    with open('/etc/pgadmin/conf.d/~postgres-operator/pgadmin.json') as _f:
+    with open('/etc/pgadmin/conf.d/~ivory-operator/pgadmin.json') as _f:
         _conf, _data = re.compile(r'[A-Z_]+'), json.load(_f)
         if type(_data) is dict:
             globals().update({k: v for k, v in _data.items() if _conf.fullmatch(k)})
-    if os.path.isfile('/etc/pgadmin/conf.d/~postgres-operator/ldap-bind-password'):
-        with open('/etc/pgadmin/conf.d/~postgres-operator/ldap-bind-password') as _f:
+    if os.path.isfile('/etc/pgadmin/conf.d/~ivory-operator/ldap-bind-password'):
+        with open('/etc/pgadmin/conf.d/~ivory-operator/ldap-bind-password') as _f:
             LDAP_BIND_PASSWORD = _f.read()
   image: new-image
   imagePullPolicy: Always
@@ -547,11 +547,11 @@ volumes:
     - configMap:
         items:
         - key: pgadmin-settings.json
-          path: ~postgres-operator/pgadmin.json
+          path: ~ivory-operator/pgadmin.json
     - secret:
         items:
         - key: podtestpw
-          path: ~postgres-operator/ldap-bind-password
+          path: ~ivory-operator/ldap-bind-password
         name: podtest
 - emptyDir:
     medium: Memory

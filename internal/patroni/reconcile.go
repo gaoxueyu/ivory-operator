@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -23,25 +23,25 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 
-	"github.com/crunchydata/postgres-operator/internal/initialize"
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/internal/pgbackrest"
-	"github.com/crunchydata/postgres-operator/internal/pki"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/initialize"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/internal/pgbackrest"
+	"github.com/highgo/ivory-operator/internal/pki"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // ClusterBootstrapped returns a bool indicating whether or not Patroni has successfully
-// bootstrapped the PostgresCluster
-func ClusterBootstrapped(postgresCluster *v1beta1.PostgresCluster) bool {
-	return postgresCluster.Status.Patroni.SystemIdentifier != ""
+// bootstrapped the IvoryCluster
+func ClusterBootstrapped(ivoryCluster *v1beta1.IvoryCluster) bool {
+	return ivoryCluster.Status.Patroni.SystemIdentifier != ""
 }
 
 // ClusterConfigMap populates the shared ConfigMap with fields needed to run Patroni.
 func ClusterConfigMap(ctx context.Context,
-	inCluster *v1beta1.PostgresCluster,
-	inHBAs postgres.HBAs,
-	inParameters postgres.Parameters,
+	inCluster *v1beta1.IvoryCluster,
+	inHBAs ivory.HBAs,
+	inParameters ivory.Parameters,
 	outClusterConfigMap *corev1.ConfigMap,
 ) error {
 	var err error
@@ -56,8 +56,8 @@ func ClusterConfigMap(ctx context.Context,
 
 // InstanceConfigMap populates the shared ConfigMap with fields needed to run Patroni.
 func InstanceConfigMap(ctx context.Context,
-	inCluster *v1beta1.PostgresCluster,
-	inInstanceSpec *v1beta1.PostgresInstanceSetSpec,
+	inCluster *v1beta1.IvoryCluster,
+	inInstanceSpec *v1beta1.IvoryInstanceSetSpec,
 	outInstanceConfigMap *corev1.ConfigMap,
 ) error {
 	var err error
@@ -92,11 +92,11 @@ func InstanceCertificates(ctx context.Context,
 // InstancePod populates a PodTemplateSpec with the fields needed to run Patroni.
 // The database container must already be in the template.
 func InstancePod(ctx context.Context,
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	inClusterConfigMap *corev1.ConfigMap,
 	inClusterPodService *corev1.Service,
 	inPatroniLeaderService *corev1.Service,
-	inInstanceSpec *v1beta1.PostgresInstanceSetSpec,
+	inInstanceSpec *v1beta1.IvoryInstanceSetSpec,
 	inInstanceCertificates *corev1.Secret,
 	inInstanceConfigMap *corev1.ConfigMap,
 	outInstancePod *corev1.PodTemplateSpec,
@@ -145,9 +145,9 @@ func InstancePod(ctx context.Context,
 }
 
 // instanceProbes adds Patroni liveness and readiness probes to container.
-func instanceProbes(cluster *v1beta1.PostgresCluster, container *corev1.Container) {
+func instanceProbes(cluster *v1beta1.IvoryCluster, container *corev1.Container) {
 
-	// Patroni uses a watchdog to ensure that PostgreSQL does not accept commits
+	// Patroni uses a watchdog to ensure that IvorySQL does not accept commits
 	// after the leader lock expires, even if Patroni becomes unresponsive.
 	// - https://github.com/zalando/patroni/blob/v2.0.1/docs/watchdog.rst
 	//
@@ -196,8 +196,8 @@ func PodIsStandbyLeader(pod metav1.Object) bool {
 	return strings.Contains(status, `"role":"standby_leader"`)
 }
 
-// PodRequiresRestart returns whether or not PostgreSQL inside pod has (pending)
-// parameter changes that require a PostgreSQL restart.
+// PodRequiresRestart returns whether or not IvorySQL inside pod has (pending)
+// parameter changes that require a IvorySQL restart.
 func PodRequiresRestart(pod metav1.Object) bool {
 	if pod == nil {
 		return false

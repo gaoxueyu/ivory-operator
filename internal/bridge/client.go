@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,7 +19,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,9 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/wait"
 )
 
-const defaultAPI = "https://api.crunchybridge.com"
-
-var errAuthentication = errors.New("authentication failed")
+const defaultAPI = "https://api.highgobridge.com"
 
 type Client struct {
 	http.Client
@@ -88,12 +85,12 @@ func (c *Client) doWithBackoff(
 
 	// Send a value that identifies this PATCH or POST request so it is safe to
 	// retry when the server does not respond.
-	// - https://docs.crunchybridge.com/api-concepts/idempotency/
+	// - https://docs.highgobridge.com/api-concepts/idempotency/
 	if method == http.MethodPatch || method == http.MethodPost {
 		headers.Set("Idempotency-Key", string(uuid.NewUUID()))
 	}
 
-	headers.Set("User-Agent", "PGO/"+c.Version)
+	headers.Set("User-Agent", "IVO/"+c.Version)
 	url := c.BaseURL.JoinPath(path).String()
 
 	err := wait.ExponentialBackoff(c.Backoff, func() (bool, error) {
@@ -113,7 +110,7 @@ func (c *Client) doWithBackoff(
 		finished := err == nil
 
 		// When the request finishes with a server error, discard the body and retry.
-		// - https://docs.crunchybridge.com/api-concepts/getting-started/#status-codes
+		// - https://docs.highgobridge.com/api-concepts/getting-started/#status-codes
 		if finished && response.StatusCode >= 500 {
 			_ = response.Body.Close()
 			finished = false
@@ -149,8 +146,8 @@ func (c *Client) doWithRetry(
 	response, err := c.doWithBackoff(ctx, method, path, body, headers)
 
 	// Retry the request when the server responds with "Too many requests".
-	// - https://docs.crunchybridge.com/api-concepts/getting-started/#status-codes
-	// - https://docs.crunchybridge.com/api-concepts/getting-started/#rate-limiting
+	// - https://docs.highgobridge.com/api-concepts/getting-started/#status-codes
+	// - https://docs.highgobridge.com/api-concepts/getting-started/#rate-limiting
 	for err == nil && response.StatusCode == 429 {
 		seconds, _ := strconv.Atoi(response.Header.Get("Retry-After"))
 
@@ -182,38 +179,6 @@ func (c *Client) doWithRetry(
 	return response, err
 }
 
-func (c *Client) CreateAuthObject(ctx context.Context, authn AuthObject) (AuthObject, error) {
-	var result AuthObject
-
-	response, err := c.doWithRetry(ctx, "POST", "/vendor/operator/auth-objects", nil, http.Header{
-		"Accept":        []string{"application/json"},
-		"Authorization": []string{"Bearer " + authn.Secret},
-	})
-
-	if err == nil {
-		defer response.Body.Close()
-		body, _ := io.ReadAll(response.Body)
-
-		switch {
-		// 2xx, Successful
-		case response.StatusCode >= 200 && response.StatusCode < 300:
-			if err = json.Unmarshal(body, &result); err != nil {
-				err = fmt.Errorf("%w: %s", err, body)
-			}
-
-		// 401, Unauthorized
-		case response.StatusCode == 401:
-			err = fmt.Errorf("%w: %s", errAuthentication, body)
-
-		default:
-			//nolint:goerr113 // This is intentionally dynamic.
-			err = fmt.Errorf("%v: %s", response.Status, body)
-		}
-	}
-
-	return result, err
-}
-
 func (c *Client) CreateInstallation(ctx context.Context) (Installation, error) {
 	var result Installation
 
@@ -223,18 +188,20 @@ func (c *Client) CreateInstallation(ctx context.Context) (Installation, error) {
 
 	if err == nil {
 		defer response.Body.Close()
-		body, _ := io.ReadAll(response.Body)
+
+		var body bytes.Buffer
+		_, _ = io.Copy(&body, response.Body)
 
 		switch {
 		// 2xx, Successful
-		case response.StatusCode >= 200 && response.StatusCode < 300:
-			if err = json.Unmarshal(body, &result); err != nil {
-				err = fmt.Errorf("%w: %s", err, body)
+		case 200 <= response.StatusCode && response.StatusCode < 300:
+			if err = json.Unmarshal(body.Bytes(), &result); err != nil {
+				err = fmt.Errorf("%w: %v", err, body.String())
 			}
 
 		default:
 			//nolint:goerr113 // This is intentionally dynamic.
-			err = fmt.Errorf("%v: %s", response.Status, body)
+			err = fmt.Errorf("%v: %v", response.Status, body.String())
 		}
 	}
 

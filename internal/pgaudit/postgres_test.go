@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -24,10 +24,10 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/crunchydata/postgres-operator/internal/postgres"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
 )
 
-func TestEnableInPostgreSQL(t *testing.T) {
+func TestEnableInIvorySQL(t *testing.T) {
 	expected := errors.New("whoops")
 	exec := func(
 		_ context.Context, stdin io.Reader, stdout, stderr io.Writer, command ...string,
@@ -49,16 +49,16 @@ SET client_min_messages = WARNING; CREATE EXTENSION IF NOT EXISTS pgaudit;
 	}
 
 	ctx := context.Background()
-	assert.Equal(t, expected, EnableInPostgreSQL(ctx, exec))
+	assert.Equal(t, expected, EnableInIvorySQL(ctx, exec))
 }
 
-func TestPostgreSQLParameters(t *testing.T) {
-	parameters := postgres.Parameters{
-		Mandatory: postgres.NewParameterSet(),
+func TestIvorySQLParameters(t *testing.T) {
+	parameters := ivory.Parameters{
+		Mandatory: ivory.NewParameterSet(),
 	}
 
 	// No comma when empty.
-	PostgreSQLParameters(&parameters)
+	IvorySQLParameters(&parameters)
 
 	assert.Assert(t, parameters.Default == nil)
 	assert.DeepEqual(t, parameters.Mandatory.AsMap(), map[string]string{
@@ -67,7 +67,7 @@ func TestPostgreSQLParameters(t *testing.T) {
 
 	// Appended when not empty.
 	parameters.Mandatory.Add("shared_preload_libraries", "some,existing")
-	PostgreSQLParameters(&parameters)
+	IvorySQLParameters(&parameters)
 
 	assert.Assert(t, parameters.Default == nil)
 	assert.DeepEqual(t, parameters.Mandatory.AsMap(), map[string]string{

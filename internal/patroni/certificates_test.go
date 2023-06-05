@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import (
 	"gotest.tools/v3/assert"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/testing/cmp"
+	"github.com/highgo/ivory-operator/internal/testing/cmp"
 )
 
 type funcMarshaler func() ([]byte, error)
@@ -53,9 +53,9 @@ func TestInstanceCertificates(t *testing.T) {
 - secret:
     items:
     - key: patroni.ca-roots
-      path: ~postgres-operator/patroni.ca-roots
+      path: ~ivory-operator/patroni.ca-roots
     - key: patroni.crt-combined
-      path: ~postgres-operator/patroni.crt+key
+      path: ~ivory-operator/patroni.crt+key
     name: some-name
 	`))
 }

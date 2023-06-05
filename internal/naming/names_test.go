@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -26,7 +26,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestAsObjectKey(t *testing.T) {
@@ -51,7 +51,7 @@ func TestContainerNamesUniqueAndValid(t *testing.T) {
 		ContainerPGBackRestLogDirInit,
 		ContainerPGBouncer,
 		ContainerPGBouncerConfig,
-		ContainerPostgresStartup,
+		ContainerIvoryStartup,
 		ContainerPGMonitorExporter,
 	} {
 		assert.Assert(t, !names.Has(name), "%q defined already", name)
@@ -61,13 +61,13 @@ func TestContainerNamesUniqueAndValid(t *testing.T) {
 }
 
 func TestClusterNamesUniqueAndValid(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{
+	cluster := &v1beta1.IvoryCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "ns1", Name: "pg0",
 		},
 	}
 	repoName := "hippo-repo"
-	instanceSet := &v1beta1.PostgresInstanceSetSpec{
+	instanceSet := &v1beta1.IvoryInstanceSetSpec{
 		Name: "set-1",
 	}
 
@@ -149,8 +149,8 @@ func TestClusterNamesUniqueAndValid(t *testing.T) {
 	t.Run("Secrets", func(t *testing.T) {
 		names := testUniqueAndValid(t, []test{
 			{"ClusterPGBouncer", ClusterPGBouncer(cluster)},
-			{"DeprecatedPostgresUserSecret", DeprecatedPostgresUserSecret(cluster)},
-			{"PostgresTLSSecret", PostgresTLSSecret(cluster)},
+			{"DeprecatedIvoryUserSecret", DeprecatedIvoryUserSecret(cluster)},
+			{"IvoryTLSSecret", IvoryTLSSecret(cluster)},
 			{"ReplicationClientCertSecret", ReplicationClientCertSecret(cluster)},
 			{"PGBackRestSSHSecret", PGBackRestSSHSecret(cluster)},
 			{"MonitoringUserSecret", MonitoringUserSecret(cluster)},
@@ -163,13 +163,13 @@ func TestClusterNamesUniqueAndValid(t *testing.T) {
 			assert.Assert(t, !names.Has(other), "%q defined already", other)
 		})
 
-		t.Run("PostgresUserSecret", func(t *testing.T) {
-			value := PostgresUserSecret(cluster, "some-user")
+		t.Run("IvoryUserSecret", func(t *testing.T) {
+			value := IvoryUserSecret(cluster, "some-user")
 
 			assert.Equal(t, value.Namespace, cluster.Namespace)
 			assert.Assert(t, nil == validation.IsDNS1123Label(value.Name))
 
-			prefix := PostgresUserSecret(cluster, "").Name
+			prefix := IvoryUserSecret(cluster, "").Name
 			for _, name := range names.List() {
 				assert.Assert(t, !strings.HasPrefix(name, prefix), "%q may collide", name)
 			}
@@ -241,8 +241,8 @@ func TestInstanceNamesUniqueAndValid(t *testing.T) {
 	t.Run("PVCs", func(t *testing.T) {
 		names := sets.NewString()
 		for _, tt := range []test{
-			{"InstancePostgresDataVolume", InstancePostgresDataVolume(instance)},
-			{"InstancePostgresWALVolume", InstancePostgresWALVolume(instance)},
+			{"InstanceIvoryDataVolume", InstanceIvoryDataVolume(instance)},
+			{"InstanceIvoryWALVolume", InstanceIvoryWALVolume(instance)},
 		} {
 			t.Run(tt.name, func(t *testing.T) {
 				assert.Equal(t, tt.value.Namespace, instance.Namespace)
@@ -271,12 +271,12 @@ func TestInstanceNamesUniqueAndValid(t *testing.T) {
 }
 
 func TestGenerateInstance(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{
+	cluster := &v1beta1.IvoryCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "ns1", Name: "pg0",
 		},
 	}
-	set := &v1beta1.PostgresInstanceSetSpec{Name: "hippos"}
+	set := &v1beta1.IvoryInstanceSetSpec{Name: "hippos"}
 
 	instance := GenerateInstance(cluster, set)
 
@@ -288,12 +288,12 @@ func TestGenerateInstance(t *testing.T) {
 // provided assuming the same cluster name and instance set name is passed
 // into GenerateStartupInstance
 func TestGenerateStartupInstance(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{
+	cluster := &v1beta1.IvoryCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace: "ns1", Name: "pg0",
 		},
 	}
-	set := &v1beta1.PostgresInstanceSetSpec{Name: "hippos"}
+	set := &v1beta1.IvoryInstanceSetSpec{Name: "hippos"}
 
 	instanceOne := GenerateStartupInstance(cluster, set)
 
@@ -306,7 +306,7 @@ func TestGenerateStartupInstance(t *testing.T) {
 }
 
 func TestOperatorConfigurationSecret(t *testing.T) {
-	t.Setenv("PGO_NAMESPACE", "cheese")
+	t.Setenv("IVYO_NAMESPACE", "cheese")
 
 	value := OperatorConfigurationSecret()
 	assert.Equal(t, value.Namespace, "cheese")
@@ -323,7 +323,7 @@ func TestPortNamesUniqueAndValid(t *testing.T) {
 		PortExporter,
 		PortPGAdmin,
 		PortPGBouncer,
-		PortPostgreSQL,
+		PortIvorySQL,
 	} {
 		assert.Assert(t, !names.Has(name), "%q defined already", name)
 		assert.Assert(t, nil == validation.IsValidPortName(name))
