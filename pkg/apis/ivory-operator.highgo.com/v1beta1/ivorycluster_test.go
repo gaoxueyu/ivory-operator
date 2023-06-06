@@ -62,9 +62,9 @@ spec:
   port: 5432
   postgresVersion: 0
 status:
-  ivoryVersion: 0
   monitoring: {}
   patroni: {}
+  postgresVersion: 0
   proxy:
     pgBouncer: {}
 		`)+"\n")
@@ -100,9 +100,9 @@ spec:
   port: 5432
   postgresVersion: 0
 status:
-  ivoryVersion: 0
   monitoring: {}
   patroni: {}
+  postgresVersion: 0
   proxy:
     pgBouncer: {}
 		`)+"\n")
