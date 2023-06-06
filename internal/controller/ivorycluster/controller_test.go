@@ -172,7 +172,7 @@ var _ = Describe("IvoryCluster Reconciler", func() {
 metadata:
   name: carlos
 spec:
-  ivoryVersion: 13
+  postgresVersion: 13
   instances:
   - name: samba
     dataVolumeClaimSpec:
@@ -375,7 +375,7 @@ spec:
 metadata:
   name: carlos
 spec:
-  ivoryVersion: 13
+  postgresVersion: 13
   instances:
   - name: samba
     dataVolumeClaimSpec:

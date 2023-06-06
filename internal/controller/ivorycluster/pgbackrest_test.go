@@ -2499,7 +2499,7 @@ func TestGenerateBackupJobIntent(t *testing.T) {
 		assert.Assert(t, marshalMatches(spec.Template.Spec, `
 containers:
 - command:
-  - /opt/highgo/bin/pgbackrest
+  - /opt/crunchy/bin/pgbackrest
   env:
   - name: COMMAND
     value: backup
