@@ -629,10 +629,10 @@ annotations:
   annotation1: annotationvalue
 creationTimestamp: null
 labels:
-  label1: labelvalue
   ivory-operator.highgo.com/cluster: custom-cluster
   ivory-operator.highgo.com/data: pgadmin
   ivory-operator.highgo.com/role: pgadmin
+  label1: labelvalue
 		`))
 
 		compare := `
