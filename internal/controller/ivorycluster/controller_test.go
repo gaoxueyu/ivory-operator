@@ -139,6 +139,9 @@ var _ = Describe("IvoryCluster Reconciler", func() {
 		ctx := context.Background()
 
 		var cluster v1beta1.IvoryCluster
+		js, _:=json.Marshal(cluster)
+		fmt.Println("+++++++++++++++++++++++++", string(js))
+		fmt.Println(clusterYAML)
 		Expect(yaml.Unmarshal([]byte(clusterYAML), &cluster)).To(Succeed())
 
 		cluster.Namespace = test.Namespace.Name

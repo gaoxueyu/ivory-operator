@@ -242,7 +242,7 @@ func (r *IvyUpgradeReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	version := int64(world.Cluster.Spec.PostgresVersion)
 
 	// Get the status version and check the jobs to see if this upgrade has completed
-	statusVersion := int64(world.Cluster.Status.IvoryVersion)
+	statusVersion := int64(world.Cluster.Status.PostgresVersion)
 	upgradeJob := world.Jobs[pgUpgradeJob(upgrade).Name]
 	upgradeJobComplete := upgradeJob != nil &&
 		jobCompleted(upgradeJob)
@@ -417,7 +417,7 @@ func (r *IvyUpgradeReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 			// Set the cluster status when we know the upgrade has completed successfully.
 			// This will serve to help the user see that the upgrade has completed if they
 			// are only watching the IvoryCluster
-			patch.Status.IvoryVersion = upgrade.Spec.ToIvoryVersion
+			patch.Status.PostgresVersion = upgrade.Spec.ToIvoryVersion
 
 			// Set the pgBackRest status for bootstrapping
 			patch.Status.PGBackRest.Repos = []v1beta1.RepoStatus{}

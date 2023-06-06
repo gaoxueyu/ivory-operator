@@ -343,7 +343,7 @@ type IvoryClusterStatus struct {
 	// Stores the current IvorySQL major version following a successful
 	// major IvorySQL upgrade.
 	// +optional
-	IvoryVersion int `json:"ivoryVersion"`
+	PostgresVersion int `json:"postgresVersion"`
 
 	// Current state of the IvorySQL proxy.
 	// +optional
