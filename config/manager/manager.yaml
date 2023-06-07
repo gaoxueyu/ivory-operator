@@ -12,7 +12,7 @@ spec:
       - name: operator
         image: postgres-operator
         env:
-        - name: PGO_NAMESPACE
+        - name: IVYO_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace

@@ -142,7 +142,7 @@ deploy-dev: createnamespaces
 		PGO_FEATURE_GATES="${PGO_FEATURE_GATES}" \
 		CHECK_FOR_UPGRADES='$(if $(CHECK_FOR_UPGRADES),$(CHECK_FOR_UPGRADES),false)' \
 		KUBECONFIG=hack/.kube/postgres-operator/pgo \
-		PGO_NAMESPACE='postgres-operator' \
+		IVYO_NAMESPACE='ivory-operator' \
 		$(shell kubectl kustomize ./config/dev | \
 			sed -ne '/^kind: Deployment/,/^---/ { \
 				/RELATED_IMAGE_/ { N; s,.*\(RELATED_[^[:space:]]*\).*value:[[:space:]]*\([^[:space:]]*\),\1="\2",; p; }; \
@@ -247,7 +247,7 @@ check-envtest: SHELL = bash
 check-envtest:
 	GOBIN='$(CURDIR)/hack/tools' $(GO) install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 	@$(ENVTEST_USE) --print=overview && echo
-	source <($(ENVTEST_USE) --print=env) && PGO_NAMESPACE="ivory-operator" $(GO_TEST) -count=1 -cover -tags=envtest ./...
+	source <($(ENVTEST_USE) --print=env) && IVYO_NAMESPACE="ivory-operator" $(GO_TEST) -count=1 -cover -tags=envtest ./...
 
 # The "PGO_TEST_TIMEOUT_SCALE" environment variable (default: 1) can be set to a
 # positive number that extends test timeouts. The following runs tests with 
@@ -257,7 +257,7 @@ check-envtest:
 check-envtest-existing: ## Run check using envtest and an existing kube api
 check-envtest-existing: createnamespaces
 	kubectl apply --server-side -k ./config/dev
-	USE_EXISTING_CLUSTER=true PGO_NAMESPACE="postgres-operator" $(GO_TEST) -count=1 -cover -p=1 -tags=envtest ./...
+	USE_EXISTING_CLUSTER=true IVYO_NAMESPACE="postgres-operator" $(GO_TEST) -count=1 -cover -p=1 -tags=envtest ./...
 	kubectl delete -k ./config/dev
 
 # Expects operator to be running
