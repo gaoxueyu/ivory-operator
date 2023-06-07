@@ -1,4 +1,4 @@
-namespace: postgres-operator
+namespace: ivory-operator
 
 commonLabels:
   # Note: this label differs from the label set in postgres-operator-examples

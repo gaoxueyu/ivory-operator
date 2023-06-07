@@ -141,7 +141,7 @@ deploy-dev: createnamespaces
 		CRUNCHY_DEBUG=true \
 		PGO_FEATURE_GATES="${PGO_FEATURE_GATES}" \
 		CHECK_FOR_UPGRADES='$(if $(CHECK_FOR_UPGRADES),$(CHECK_FOR_UPGRADES),false)' \
-		KUBECONFIG=hack/.kube/postgres-operator/pgo \
+		KUBECONFIG=hack/.kube/ivory-operator/pgo \
 		IVYO_NAMESPACE='ivory-operator' \
 		$(shell kubectl kustomize ./config/dev | \
 			sed -ne '/^kind: Deployment/,/^---/ { \
@@ -257,7 +257,7 @@ check-envtest:
 check-envtest-existing: ## Run check using envtest and an existing kube api
 check-envtest-existing: createnamespaces
 	kubectl apply --server-side -k ./config/dev
-	USE_EXISTING_CLUSTER=true IVYO_NAMESPACE="postgres-operator" $(GO_TEST) -count=1 -cover -p=1 -tags=envtest ./...
+	USE_EXISTING_CLUSTER=true IVYO_NAMESPACE="ivory-operator" $(GO_TEST) -count=1 -cover -p=1 -tags=envtest ./...
 	kubectl delete -k ./config/dev
 
 # Expects operator to be running
