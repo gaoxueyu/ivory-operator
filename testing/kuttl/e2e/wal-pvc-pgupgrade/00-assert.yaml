@@ -21,7 +21,7 @@ status:
 ---
 # Even when the cluster exists, the pgupgrade is not progressing because the cluster is not shutdown
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PGUpgrade
+kind: IvyUpgrade
 metadata:
   name: wal-pvc-pgupgrade-do-it
 status:

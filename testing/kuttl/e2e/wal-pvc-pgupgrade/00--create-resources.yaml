@@ -19,7 +19,7 @@ spec:
 ---
 # This upgrade is valid, but has no pgcluster to work on and should get that condition
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PGUpgrade
+kind: IvyUpgrade
 metadata:
   name: wal-pvc-pgupgrade-do-it
 spec:

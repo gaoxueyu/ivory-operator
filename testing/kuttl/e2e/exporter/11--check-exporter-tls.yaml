@@ -7,8 +7,8 @@ commands:
       PRIMARY=$(
         kubectl get pod --namespace "${NAMESPACE}" \
           --output name --selector '
-            postgres-operator.crunchydata.com/cluster=exporter-tls,
-            postgres-operator.crunchydata.com/role=master'
+            ivory-operator.highgo.com/cluster=exporter-tls,
+            ivory-operator.highgo.com/role=master'
       )
 
       # TODO: We have no notion of exporter readiness.

@@ -10,7 +10,7 @@ kind: StatefulSet
 metadata:
   namespace: kuttl-test-delete-namespace
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-namespace
+    ivory-operator.highgo.com/cluster: delete-namespace
 ---
 # Patroni DCS objects are not owned by the IvoryCluster.
 apiVersion: v1
@@ -18,32 +18,32 @@ kind: Endpoints
 metadata:
   namespace: kuttl-test-delete-namespace
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-namespace
+    ivory-operator.highgo.com/cluster: delete-namespace
 ---
 apiVersion: v1
 kind: Pod
 metadata:
   namespace: kuttl-test-delete-namespace
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-namespace
+    ivory-operator.highgo.com/cluster: delete-namespace
 ---
 apiVersion: v1
 kind: Service
 metadata:
   namespace: kuttl-test-delete-namespace
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-namespace
+    ivory-operator.highgo.com/cluster: delete-namespace
 ---
 apiVersion: v1
 kind: Secret
 metadata:
   namespace: kuttl-test-delete-namespace
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-namespace
+    ivory-operator.highgo.com/cluster: delete-namespace
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   namespace: kuttl-test-delete-namespace
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-namespace
+    ivory-operator.highgo.com/cluster: delete-namespace
