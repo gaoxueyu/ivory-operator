@@ -1,6 +1,6 @@
 ---
 # Annotate the cluster for an upgrade.
-apiVersion: postgres-operator.crunchydata.com/v1beta1
+apiVersion: ivory-operator.highgo.com/v1beta1
 kind: PostgresCluster
 metadata:
   name: major-upgrade

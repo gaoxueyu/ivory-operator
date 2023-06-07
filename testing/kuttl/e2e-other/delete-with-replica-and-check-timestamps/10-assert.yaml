@@ -1,5 +1,5 @@
 ---
-apiVersion: postgres-operator.crunchydata.com/v1beta1
+apiVersion: ivory-operator.highgo.com/v1beta1
 kind: PostgresCluster
 metadata:
   name: delete-switchover-with-timestamp
