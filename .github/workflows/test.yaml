@@ -120,7 +120,7 @@ jobs:
           hack/create-kubeconfig.sh ivory-operator pgo
           docker run --detach --network host --read-only \
             --volume "$(pwd):/mnt" --workdir '/mnt' --env 'PATH=/mnt/bin' \
-            --env 'KUBECONFIG=hack/.kube/postgres-operator/pgo' \
+            --env 'KUBECONFIG=hack/.kube/ivory-operator/pgo' \
             --env 'RELATED_IMAGE_PGADMIN=registry.developers.crunchydata.com/crunchydata/crunchy-pgadmin4:ubi8-4.30-10' \
             --env 'RELATED_IMAGE_PGBACKREST=registry.developers.crunchydata.com/crunchydata/crunchy-pgbackrest:ubi8-2.41-4' \
             --env 'RELATED_IMAGE_PGBOUNCER=registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer:ubi8-1.18-0' \
@@ -131,7 +131,7 @@ jobs:
             --env 'RELATED_IMAGE_POSTGRES_15=registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-15.2-0' \
             --env 'RELATED_IMAGE_POSTGRES_15_GIS_3.3=registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis:ubi8-15.2-3.3-0' \
             --env 'PGO_FEATURE_GATES=TablespaceVolumes=true' \
-            --name 'postgres-operator' ubuntu \
+            --name 'ivory-operator' ubuntu \
             postgres-operator
       - name: Install kuttl
         run: |
