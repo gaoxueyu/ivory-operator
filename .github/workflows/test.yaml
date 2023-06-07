@@ -117,7 +117,7 @@ jobs:
         run: |
           kubectl apply --server-side -k ./config/namespace
           kubectl apply --server-side -k ./config/dev
-          hack/create-kubeconfig.sh postgres-operator pgo
+          hack/create-kubeconfig.sh ivory-operator pgo
           docker run --detach --network host --read-only \
             --volume "$(pwd):/mnt" --workdir '/mnt' --env 'PATH=/mnt/bin' \
             --env 'KUBECONFIG=hack/.kube/postgres-operator/pgo' \
