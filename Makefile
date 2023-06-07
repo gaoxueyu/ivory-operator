@@ -136,7 +136,7 @@ deploy-dev: PGO_FEATURE_GATES ?= "TablespaceVolumes=true"
 deploy-dev: build-postgres-operator
 deploy-dev: createnamespaces
 	kubectl apply --server-side -k ./config/dev
-	hack/create-kubeconfig.sh postgres-operator pgo
+	hack/create-kubeconfig.sh ivory-operator pgo
 	env \
 		CRUNCHY_DEBUG=true \
 		PGO_FEATURE_GATES="${PGO_FEATURE_GATES}" \
