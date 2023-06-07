@@ -15,7 +15,7 @@ stringData:
 ---
 # Create a cluster with a configured pgAdmin UI.
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: interfaced
   labels: { postgres-operator-test: kuttl }

@@ -21,7 +21,7 @@ metadata:
 ---
 # All instances should be healthy.
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: delete-switchover-with-timestamp
 status:

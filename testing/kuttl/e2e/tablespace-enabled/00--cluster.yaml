@@ -8,7 +8,7 @@ data:
     CREATE TABLESPACE castle OWNER "tablespace-enabled" LOCATION '/tablespaces/user/data';
 ---
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: tablespace-enabled
 spec:

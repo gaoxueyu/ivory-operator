@@ -1,6 +1,6 @@
 ---
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   namespace: kuttl-test-delete-namespace
   name: delete-namespace
@@ -12,7 +12,7 @@ metadata:
   labels:
     postgres-operator.crunchydata.com/cluster: delete-namespace
 ---
-# Patroni DCS objects are not owned by the PostgresCluster.
+# Patroni DCS objects are not owned by the IvoryCluster.
 apiVersion: v1
 kind: Endpoints
 metadata:

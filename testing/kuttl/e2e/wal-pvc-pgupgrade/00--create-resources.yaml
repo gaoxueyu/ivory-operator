@@ -1,7 +1,7 @@
 ---
 # Create the cluster we will do an actual upgrade on
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: wal-pvc-pgupgrade
 spec:

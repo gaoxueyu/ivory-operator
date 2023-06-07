@@ -2,7 +2,7 @@
 # Create a cluster with a single pgBackRest repository and some parameters that
 # require attention during PostgreSQL recovery.
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: original
   labels: { postgres-operator-test: kuttl }

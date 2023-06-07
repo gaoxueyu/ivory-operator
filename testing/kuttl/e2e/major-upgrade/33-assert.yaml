@@ -15,7 +15,7 @@ status:
     status: "True"
 ---
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: major-upgrade
 status:

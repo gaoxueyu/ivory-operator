@@ -2,7 +2,7 @@
 # Wait for the instances to be ready and the replica backup to complete
 # by waiting for the status to signal pods ready and pgbackrest stanza created
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: wal-pvc-pgupgrade
 spec:

@@ -1,6 +1,6 @@
 ---
 apiVersion: ivory-operator.highgo.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: delete-namespace
   namespace: kuttl-test-delete-namespace
