@@ -5,6 +5,6 @@ kind: IvyUpgrade
 metadata:
   name: major-upgrade-do-it
 spec:
-  fromPostgresVersion: ${KUTTL_PG_VERSION}
-  toPostgresVersion: ${KUTTL_PG_VERSION}
-  postgresClusterName: major-upgrade
+  fromIvoryVersion: ${KUTTL_PG_VERSION}
+  toIvoryVersion: ${KUTTL_PG_VERSION}
+  ivoryclusterName: major-upgrade
