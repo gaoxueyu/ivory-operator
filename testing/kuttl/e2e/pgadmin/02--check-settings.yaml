@@ -12,7 +12,7 @@ commands:
   - script: |
       SETTINGS=$(
         kubectl exec --namespace "${NAMESPACE}" statefulset.apps/interfaced-pgadmin \
-          -- cat /etc/pgadmin/conf.d/~postgres-operator/pgadmin.json
+          -- cat /etc/pgadmin/conf.d/~ivory-operator/pgadmin.json
       )
 
       contains() { bash -ceu '[[ "$1" == *"$2"* ]]' - "$@"; }
