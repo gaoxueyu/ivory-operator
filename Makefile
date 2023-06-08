@@ -314,15 +314,15 @@ generate-crd: ## Generate crd
 	GOBIN='$(CURDIR)/hack/tools' ./hack/controller-generator.sh \
 		crd:crdVersions='v1' \
 		paths='./pkg/apis/...' \
-		output:dir='build/crd/postgresclusters/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
+		output:dir='build/crd/ivoryclusters/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
 	@
 	GOBIN='$(CURDIR)/hack/tools' ./hack/controller-generator.sh \
 		crd:crdVersions='v1' \
 		paths='./pkg/apis/...' \
-		output:dir='build/crd/pgupgrades/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
+		output:dir='build/crd/ivyupgrades/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
 	@
-	kubectl kustomize ./build/crd/postgresclusters > ./config/crd/bases/ivory-operator.highgo.com_ivoryclusters.yaml
-	kubectl kustomize ./build/crd/pgupgrades > ./config/crd/bases/ivory-operator.highgo.com_ivyupgrades.yaml
+	kubectl kustomize ./build/crd/ivoryclusters > ./config/crd/bases/ivory-operator.highgo.com_ivoryclusters.yaml
+	kubectl kustomize ./build/crd/ivyupgrades > ./config/crd/bases/ivory-operator.highgo.com_ivyupgrades.yaml
 
 .PHONY: generate-crd-docs
 generate-crd-docs: ## Generate crd-docs
