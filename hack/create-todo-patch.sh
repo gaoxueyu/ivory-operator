@@ -14,8 +14,8 @@
 # limitations under the License.
 
 directory=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-clusters_dir="${directory}/../build/crd/postgresclusters"
-upgrades_dir="${directory}/../build/crd/pgupgrades"
+clusters_dir="${directory}/../build/crd/ivoryclusters"
+upgrades_dir="${directory}/../build/crd/ivyupgrades"
 
 # Generate a Kustomize patch file for removing any TODOs we inherit from the Kubernetes API.
 # Right now there is one TODO in our CRD. This script focuses on removing the specific TODO
