@@ -4,7 +4,7 @@ kind: TestStep
 commands:
   - script: |
       BEFORE=$(
-        kubectl get --namespace "${NAMESPACE}" postgrescluster/original \
+        kubectl get --namespace "${NAMESPACE}" ivorycluster/original \
           --output 'go-template={{ index .metadata.annotations "testing/start-before" }}'
       )
       PRIMARY=$(

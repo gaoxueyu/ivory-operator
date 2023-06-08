@@ -7,7 +7,7 @@ metadata:
   labels: { ivory-operator-test: kuttl }
 spec:
   dataSource:
-    postgresCluster:
+    ivoryCluster:
       clusterName: original
       repoName: repo1
 

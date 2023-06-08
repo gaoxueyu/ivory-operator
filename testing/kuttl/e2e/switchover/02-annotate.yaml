@@ -15,5 +15,5 @@ commands:
 
   # Annotate the cluster to trigger a switchover.
   - script: |
-      kubectl annotate --namespace="${NAMESPACE}" postgrescluster/switchover \
+      kubectl annotate --namespace="${NAMESPACE}" ivorycluster/switchover \
         "ivory-operator.highgo.com/trigger-switchover=$(date)"

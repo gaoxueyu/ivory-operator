@@ -15,7 +15,7 @@ commands:
       )
 
       # Store the recovery objective for later steps.
-      kubectl annotate --namespace "${NAMESPACE}" postgrescluster/original \
+      kubectl annotate --namespace "${NAMESPACE}" ivorycluster/original \
         "testing/objective=${OBJECTIVE}"
 
       # A reason to restore. Wait for the change to be sent to the WAL archive.

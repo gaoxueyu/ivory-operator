@@ -4,12 +4,12 @@ kind: TestStep
 commands:
   - script: |
       TARGET_JSON=$(
-        kubectl get --namespace "${NAMESPACE}" postgrescluster/original \
+        kubectl get --namespace "${NAMESPACE}" ivorycluster/original \
           --output 'go-template={{ index .metadata.annotations "testing/objective" | printf "--target=%q" | printf "%q" }}'
       )
 
       # Configure the cluster for an in-place point-in-time restore (PITR).
-      kubectl patch --namespace "${NAMESPACE}" postgrescluster/original \
+      kubectl patch --namespace "${NAMESPACE}" ivorycluster/original \
         --type 'merge' --patch '
           {"spec":{"backups":{"pgbackrest":{"restore":{
             "enabled": true,
@@ -18,7 +18,7 @@ commands:
           }}}}}'
 
       # Annotate the cluster to trigger the restore.
-      kubectl annotate --namespace="${NAMESPACE}" postgrescluster/original \
+      kubectl annotate --namespace="${NAMESPACE}" ivorycluster/original \
         'ivory-operator.highgo.com/pgbackrest-restore=one'
 
       # TODO(benjaminjb): remove this when PG10 is no longer being supported
