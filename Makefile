@@ -321,8 +321,8 @@ generate-crd: ## Generate crd
 		paths='./pkg/apis/...' \
 		output:dir='build/crd/pgupgrades/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
 	@
-	kubectl kustomize ./build/crd/postgresclusters > ./config/crd/bases/postgres-operator.crunchydata.com_postgresclusters.yaml
-	kubectl kustomize ./build/crd/pgupgrades > ./config/crd/bases/postgres-operator.crunchydata.com_pgupgrades.yaml
+	kubectl kustomize ./build/crd/postgresclusters > ./config/crd/bases/ivory-operator.highgo.com_ivoryclusters.yaml
+	kubectl kustomize ./build/crd/pgupgrades > ./config/crd/bases/ivory-operator.highgo.com_ivyupgrades.yaml
 
 .PHONY: generate-crd-docs
 generate-crd-docs: ## Generate crd-docs
