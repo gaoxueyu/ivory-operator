@@ -148,12 +148,12 @@ jobs:
       - run: |
           make check-kuttl && exit
           failed=$?
-          echo '::group::PGO logs'; docker logs 'postgres-operator'; echo '::endgroup::'
+          echo '::group::PGO logs'; docker logs 'ivory-operator'; echo '::endgroup::'
           exit $failed
         env:
           KUTTL_TEST: kubectl-kuttl test
       - name: Stop PGO
-        run: docker stop 'postgres-operator' || true
+        run: docker stop 'ivory-operator' || true
 
   coverage-report:
     if: ${{ success() || contains(needs.*.result, 'success') }}
