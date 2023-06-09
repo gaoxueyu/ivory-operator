@@ -1,5 +1,5 @@
 apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PGUpgrade
+kind: IVYUpgrade
 metadata:
   name: example-upgrade
 spec:
