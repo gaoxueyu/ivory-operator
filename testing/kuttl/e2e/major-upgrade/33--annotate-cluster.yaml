@@ -5,4 +5,4 @@ kind: IvoryCluster
 metadata:
   name: major-upgrade
   annotations:
-    postgres-operator.crunchydata.com/allow-upgrade: major-upgrade-do-it
+    ivory-operator.highgo.com/allow-upgrade: major-upgrade-do-it

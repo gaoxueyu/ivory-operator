@@ -4,14 +4,14 @@ kind: TestStep
 commands:
   - script: |
       BEFORE=$(
-        kubectl get --namespace "${NAMESPACE}" postgrescluster/original \
+        kubectl get --namespace "${NAMESPACE}" ivorycluster/original \
           --output 'go-template={{ index .metadata.annotations "testing/start-before" }}'
       )
       PRIMARY=$(
         kubectl get pod --namespace "${NAMESPACE}" \
           --output name --selector '
-            postgres-operator.crunchydata.com/cluster=original,
-            postgres-operator.crunchydata.com/role=master'
+            ivory-operator.highgo.com/cluster=original,
+            ivory-operator.highgo.com/role=master'
       )
 
       # Wait for PostgreSQL to restart.

@@ -5,4 +5,4 @@ kind: IvoryCluster
 metadata:
   name: wal-pvc-pgupgrade
   annotations:
-    postgres-operator.crunchydata.com/allow-upgrade: wal-pvc-pgupgrade-do-it
+    ivory-operator.highgo.com/allow-upgrade: wal-pvc-pgupgrade-do-it

@@ -4,10 +4,10 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   annotations:
-    postgres-operator.crunchydata.com/pgbackrest-backup: one
+    ivory-operator.highgo.com/pgbackrest-backup: one
   labels:
-    postgres-operator.crunchydata.com/cluster: original
-    postgres-operator.crunchydata.com/pgbackrest-backup: manual
-    postgres-operator.crunchydata.com/pgbackrest-repo: repo1
+    ivory-operator.highgo.com/cluster: original
+    ivory-operator.highgo.com/pgbackrest-backup: manual
+    ivory-operator.highgo.com/pgbackrest-repo: repo1
 status:
   succeeded: 1

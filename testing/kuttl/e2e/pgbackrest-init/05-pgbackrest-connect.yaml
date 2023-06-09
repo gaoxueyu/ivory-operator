@@ -6,8 +6,8 @@ commands:
     NEW_REPLICA=$(
         kubectl get pod --namespace "${NAMESPACE}" \
           --output name --selector '
-            postgres-operator.crunchydata.com/cluster=init-pgbackrest,
-            postgres-operator.crunchydata.com/role=replica'
+            ivory-operator.highgo.com/cluster=init-pgbackrest,
+            ivory-operator.highgo.com/role=replica'
       )
 
     LIST=$(
