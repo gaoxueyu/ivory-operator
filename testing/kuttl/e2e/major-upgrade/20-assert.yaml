@@ -1,7 +1,7 @@
 ---
 # # pgupgrade should exit since the cluster is already at the requested version
 # apiVersion: ivory-operator.highgo.com/v1beta1
-# kind: IVYUpgrade
+# kind: IvyUpgrade
 # metadata:
 #   name: major-upgrade-do-it
 # status:
