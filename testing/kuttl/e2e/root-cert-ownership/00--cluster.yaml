@@ -1,5 +1,5 @@
 apiVersion: ivory-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: owner1
   labels: { postgres-operator-test: kuttl }
@@ -17,7 +17,7 @@ spec:
           volumeClaimSpec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 1Gi } } }
 ---
 apiVersion: ivory-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: owner2
   labels: { postgres-operator-test: kuttl }

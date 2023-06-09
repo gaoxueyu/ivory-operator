@@ -1,7 +1,7 @@
 ---
 # Wait for the replica backup to complete.
 apiVersion: ivory-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: original
 status:

@@ -1,7 +1,7 @@
 ---
 # Wait for the instances to be ready with the target Postgres version.
 apiVersion: ivory-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: wal-pvc-pgupgrade
 status:

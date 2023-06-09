@@ -1,7 +1,7 @@
 ---
 # Create a cluster with multiple instances and manual switchover enabled.
 apiVersion: ivory-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: switchover
 spec:

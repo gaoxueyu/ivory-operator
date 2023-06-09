@@ -1,7 +1,7 @@
 ---
 # Wait for the clone cluster to come online.
 apiVersion: ivory-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: clone-one
 status:

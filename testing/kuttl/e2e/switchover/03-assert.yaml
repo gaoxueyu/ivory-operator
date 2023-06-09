@@ -25,7 +25,7 @@ metadata:
 ---
 # All instances should be healthy.
 apiVersion: ivory-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+kind: IvoryCluster
 metadata:
   name: switchover
 status:

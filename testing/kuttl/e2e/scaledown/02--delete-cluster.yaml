@@ -3,5 +3,5 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 delete:
   - apiVersion: ivory-operator.crunchydata.com/v1beta1
-    kind: PostgresCluster
+    kind: IvoryCluster
     name: scaledown

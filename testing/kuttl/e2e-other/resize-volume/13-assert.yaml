@@ -3,7 +3,7 @@ kind: Event
 type: Warning
 involvedObject:
   apiVersion: ivory-operator.crunchydata.com/v1beta1
-  kind: PostgresCluster
+  kind: IvoryCluster
   name: resize-volume-down
 reason: PersistentVolumeError
 ---
