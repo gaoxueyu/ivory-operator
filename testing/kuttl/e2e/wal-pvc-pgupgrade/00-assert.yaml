@@ -1,8 +1,8 @@
 ---
 # Wait for the instances to be ready and the replica backup to complete
 # by waiting for the status to signal pods ready and pgbackrest stanza created
-apiVersion: ivory-operator.highgo.com/v1beta1
-kind: IvoryCluster
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
 metadata:
   name: wal-pvc-pgupgrade
 spec:
@@ -20,8 +20,8 @@ status:
       stanzaCreated: true
 ---
 # Even when the cluster exists, the pgupgrade is not progressing because the cluster is not shutdown
-apiVersion: ivory-operator.highgo.com/v1beta1
-kind: IvyUpgrade
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PGUpgrade
 metadata:
   name: wal-pvc-pgupgrade-do-it
 status:

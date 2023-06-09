@@ -1,10 +1,10 @@
 ---
 # Update the cluster with PostgreSQL parameters that require attention during recovery.
-apiVersion: ivory-operator.highgo.com/v1beta1
-kind: IvoryCluster
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
 metadata:
   name: original
-  labels: { ivory-operator-test: kuttl }
+  labels: { postgres-operator-test: kuttl }
 spec:
   postgresVersion: ${KUTTL_PG_VERSION}
   patroni:

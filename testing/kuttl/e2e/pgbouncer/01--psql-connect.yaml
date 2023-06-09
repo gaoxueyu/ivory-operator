@@ -2,12 +2,12 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: psql-connect
-  labels: { ivory-operator-test: kuttl }
+  labels: { postgres-operator-test: kuttl }
 spec:
   backoffLimit: 6
   template:
     metadata:
-      labels: { ivory-operator-test: kuttl }
+      labels: { postgres-operator-test: kuttl }
     spec:
       restartPolicy: Never
       containers:

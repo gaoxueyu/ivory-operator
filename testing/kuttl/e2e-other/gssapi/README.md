@@ -1,7 +1,7 @@
 # GSSAPI Authentication
 
 This test verifies that it is possible to properly configure PostgreSQL for GSSAPI
-authentication.  This is done by configuring a IvoryCluster for GSSAPI authentication,
+authentication.  This is done by configuring a PostgresCluster for GSSAPI authentication,
 and then utilizing a Kerberos ticket that has been issued by a Kerberos KDC server to log into
 PostgreSQL.
 

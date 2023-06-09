@@ -1,7 +1,7 @@
 ---
 # Create the cluster we will do an actual upgrade on
-apiVersion: ivory-operator.highgo.com/v1beta1
-kind: IvoryCluster
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
 metadata:
   name: wal-pvc-pgupgrade
 spec:
@@ -18,11 +18,11 @@ spec:
             volumeClaimSpec: { accessModes: [ReadWriteOnce], resources: { requests: { storage: 1Gi } } }
 ---
 # This upgrade is valid, but has no pgcluster to work on and should get that condition
-apiVersion: ivory-operator.highgo.com/v1beta1
-kind: IvyUpgrade
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PGUpgrade
 metadata:
   name: wal-pvc-pgupgrade-do-it
 spec:
-  fromIvoryVersion: ${KUTTL_PG_UPGRADE_FROM_VERSION}
-  toIvoryVersion: ${KUTTL_PG_UPGRADE_TO_VERSION}
-  ivoryclusterName: wal-pvc-pgupgrade
+  fromPostgresVersion: ${KUTTL_PG_UPGRADE_FROM_VERSION}
+  toPostgresVersion: ${KUTTL_PG_UPGRADE_TO_VERSION}
+  postgresClusterName: wal-pvc-pgupgrade

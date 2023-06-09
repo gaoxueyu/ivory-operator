@@ -1,13 +1,13 @@
 ---
 # Clone the cluster using a pgBackRest restore.
-apiVersion: ivory-operator.highgo.com/v1beta1
-kind: IvoryCluster
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
 metadata:
   name: clone-two
-  labels: { ivory-operator-test: kuttl }
+  labels: { postgres-operator-test: kuttl }
 spec:
   dataSource:
-    ivoryCluster:
+    postgresCluster:
       clusterName: original
       repoName: repo1
 

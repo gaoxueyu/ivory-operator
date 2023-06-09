@@ -1,7 +1,7 @@
 ---
 # Shutdown the cluster -- but without the annotation.
-apiVersion: ivory-operator.highgo.com/v1beta1
-kind: IvoryCluster
+apiVersion: postgres-operator.crunchydata.com/v1beta1
+kind: PostgresCluster
 metadata:
   name: major-upgrade
 spec:
