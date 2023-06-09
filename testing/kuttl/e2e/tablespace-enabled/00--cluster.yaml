@@ -7,7 +7,7 @@ data:
     CREATE TABLESPACE trial OWNER "tablespace-enabled" LOCATION '/tablespaces/library/data';
     CREATE TABLESPACE castle OWNER "tablespace-enabled" LOCATION '/tablespaces/user/data';
 ---
-apiVersion: ivory-operator.crunchydata.com/v1beta1
+apiVersion: ivory-operator.highgo.com/v1beta1
 kind: IvoryCluster
 metadata:
   name: tablespace-enabled

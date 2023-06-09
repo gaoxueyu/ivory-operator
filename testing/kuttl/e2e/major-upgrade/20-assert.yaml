@@ -1,6 +1,6 @@
 ---
 # # pgupgrade should exit since the cluster is already at the requested version
-# apiVersion: ivory-operator.crunchydata.com/v1beta1
+# apiVersion: ivory-operator.highgo.com/v1beta1
 # kind: PGUpgrade
 # metadata:
 #   name: major-upgrade-do-it

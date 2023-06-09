@@ -1,6 +1,6 @@
 ---
 # Wait for the restore to complete and the cluster to come online.
-apiVersion: ivory-operator.crunchydata.com/v1beta1
+apiVersion: ivory-operator.highgo.com/v1beta1
 kind: IvoryCluster
 metadata:
   name: original

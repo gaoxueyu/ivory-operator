@@ -1,6 +1,6 @@
 ---
 # Create a cluster with multiple instances and manual switchover enabled.
-apiVersion: ivory-operator.crunchydata.com/v1beta1
+apiVersion: ivory-operator.highgo.com/v1beta1
 kind: IvoryCluster
 metadata:
   name: switchover

@@ -1,7 +1,7 @@
 ---
 # Create a cluster where the version does not match the pgupgrade's `from`
 # TODO(benjaminjb): this isn't quite working out
-# apiVersion: ivory-operator.crunchydata.com/v1beta1
+# apiVersion: ivory-operator.highgo.com/v1beta1
 # kind: IvoryCluster
 # metadata:
 #   name: major-upgrade
