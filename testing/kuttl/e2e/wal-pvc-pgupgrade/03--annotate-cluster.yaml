@@ -3,6 +3,6 @@
 apiVersion: ivory-operator.highgo.com/v1beta1
 kind: IvoryCluster
 metadata:
-  name: wal-pvc-pgupgrade
+  name: wal-pvc-ivyupgrade
   annotations:
-    ivory-operator.highgo.com/allow-upgrade: wal-pvc-pgupgrade-do-it
+    ivory-operator.highgo.com/allow-upgrade: wal-pvc-ivyupgrade-do-it

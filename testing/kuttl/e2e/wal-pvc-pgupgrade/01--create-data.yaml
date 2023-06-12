@@ -3,7 +3,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: wal-pvc-pgupgrade-before
+  name: wal-pvc-ivyupgrade-before
   labels: { postgres-operator-test: kuttl }
 spec:
   backoffLimit: 3
@@ -17,7 +17,7 @@ spec:
           image: ${KUTTL_PSQL_IMAGE}
           env:
             - name: PGURI
-              valueFrom: { secretKeyRef: { name: wal-pvc-pgupgrade-pguser-wal-pvc-pgupgrade, key: uri } }
+              valueFrom: { secretKeyRef: { name: wal-pvc-ivyupgrade-pguser-wal-pvc-ivyupgrade, key: uri } }
 
             # Do not wait indefinitely.
             - { name: PGCONNECT_TIMEOUT, value: '5' }
@@ -44,7 +44,7 @@ spec:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: wal-pvc-pgupgrade-before-replica
+  name: wal-pvc-ivyupgrade-before-replica
   labels: { postgres-operator-test: kuttl }
 spec:
   backoffLimit: 3
@@ -64,15 +64,15 @@ spec:
               fieldRef:
                 fieldPath: metadata.namespace
           - name: PGHOST
-            value: "wal-pvc-pgupgrade-replicas.$(NAMESPACE).svc"
+            value: "wal-pvc-ivyupgrade-replicas.$(NAMESPACE).svc"
           - name: PGPORT
-            valueFrom: { secretKeyRef: { name: wal-pvc-pgupgrade-pguser-wal-pvc-pgupgrade, key: port } }
+            valueFrom: { secretKeyRef: { name: wal-pvc-ivyupgrade-pguser-wal-pvc-ivyupgrade, key: port } }
           - name: PGDATABASE
-            valueFrom: { secretKeyRef: { name: wal-pvc-pgupgrade-pguser-wal-pvc-pgupgrade, key: dbname } }
+            valueFrom: { secretKeyRef: { name: wal-pvc-ivyupgrade-pguser-wal-pvc-ivyupgrade, key: dbname } }
           - name: PGUSER
-            valueFrom: { secretKeyRef: { name: wal-pvc-pgupgrade-pguser-wal-pvc-pgupgrade, key: user } }
+            valueFrom: { secretKeyRef: { name: wal-pvc-ivyupgrade-pguser-wal-pvc-ivyupgrade, key: user } }
           - name: PGPASSWORD
-            valueFrom: { secretKeyRef: { name: wal-pvc-pgupgrade-pguser-wal-pvc-pgupgrade, key: password } }
+            valueFrom: { secretKeyRef: { name: wal-pvc-ivyupgrade-pguser-wal-pvc-ivyupgrade, key: password } }
           
           # Do not wait indefinitely.
           - { name: PGCONNECT_TIMEOUT, value: '5' }

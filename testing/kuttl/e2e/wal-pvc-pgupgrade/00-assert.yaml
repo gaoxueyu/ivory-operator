@@ -4,7 +4,7 @@
 apiVersion: ivory-operator.highgo.com/v1beta1
 kind: IvoryCluster
 metadata:
-  name: wal-pvc-pgupgrade
+  name: wal-pvc-ivyupgrade
 spec:
   postgresVersion: ${KUTTL_PG_UPGRADE_FROM_VERSION}
 status:
@@ -23,7 +23,7 @@ status:
 apiVersion: ivory-operator.highgo.com/v1beta1
 kind: IvyUpgrade
 metadata:
-  name: wal-pvc-pgupgrade-do-it
+  name: wal-pvc-ivyupgrade-do-it
 status:
   conditions:
   - type:   "Progressing"

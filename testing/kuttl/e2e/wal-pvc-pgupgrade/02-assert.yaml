@@ -3,7 +3,7 @@
 apiVersion: ivory-operator.highgo.com/v1beta1
 kind: IvyUpgrade
 metadata:
-  name: wal-pvc-pgupgrade-do-it
+  name: wal-pvc-ivyupgrade-do-it
 status:
   conditions:
   - type:   "Progressing"

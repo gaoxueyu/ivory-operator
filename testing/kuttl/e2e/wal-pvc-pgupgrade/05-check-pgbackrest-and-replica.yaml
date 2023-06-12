@@ -3,7 +3,7 @@ kind: TestStep
 commands:
 # Check that the pgbackrest setup has successfully completed
 - script: |
-    kubectl -n "${NAMESPACE}" exec "statefulset.apps/wal-pvc-pgupgrade-repo-host" -c pgbackrest -- pgbackrest check --stanza=db
+    kubectl -n "${NAMESPACE}" exec "statefulset.apps/wal-pvc-ivyupgrade-repo-host" -c pgbackrest -- pgbackrest check --stanza=db
 # Check that the replica data dir has been successfully cleaned
 - script: |
     # Check that the old pg folders do not exist on the replica
