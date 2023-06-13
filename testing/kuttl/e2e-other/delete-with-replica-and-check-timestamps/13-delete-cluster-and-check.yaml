@@ -9,13 +9,13 @@ commands:
   - script: |
       PRIMARY=$(
         kubectl get pods --namespace="${NAMESPACE}" \
-          --selector='postgres-operator.crunchydata.com/role=master' \
+          --selector='ivory-operator.highgo.com/role=master' \
           --output=jsonpath={.items..metadata.name}
       )
 
       REPLICA=$(
         kubectl get pods --namespace="${NAMESPACE}" \
-          --selector='postgres-operator.crunchydata.com/role=replica' \
+          --selector='ivory-operator.highgo.com/role=replica' \
           --output=jsonpath={.items..metadata.name}
       )
 
@@ -24,7 +24,7 @@ commands:
       if [ -z "$PRIMARY" ]; then exit 1; fi      
       if [ -z "$REPLICA" ]; then exit 1; fi
 
-      kubectl delete postgrescluster -n "${NAMESPACE}" delete-switchover-with-timestamp
+      kubectl delete ivorycluster -n "${NAMESPACE}" delete-switchover-with-timestamp
       
       kubectl wait "pod/${REPLICA}" --namespace "${NAMESPACE}" --for=delete --timeout=180s
 

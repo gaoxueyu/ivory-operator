@@ -1,7 +1,7 @@
-namespace: postgres-operator
+namespace: ivory-operator
 
 commonLabels:
-  postgres-operator.crunchydata.com/control-plane: postgres-operator
+  ivory-operator.highgo.com/control-plane: ivory-operator
 
 bases:
 - ../crd

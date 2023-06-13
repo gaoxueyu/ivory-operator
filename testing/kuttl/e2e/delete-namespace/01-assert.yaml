@@ -1,6 +1,6 @@
 ---
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: delete-namespace
   namespace: kuttl-test-delete-namespace
@@ -16,7 +16,7 @@ kind: Job
 metadata:
   namespace: kuttl-test-delete-namespace
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-namespace
-    postgres-operator.crunchydata.com/pgbackrest-backup: replica-create
+    ivory-operator.highgo.com/cluster: delete-namespace
+    ivory-operator.highgo.com/pgbackrest-backup: replica-create
 status:
   succeeded: 1

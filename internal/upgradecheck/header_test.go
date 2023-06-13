@@ -4,7 +4,7 @@
 package upgradecheck
 
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -36,11 +36,11 @@ import (
 	crclient "sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 
-	"github.com/crunchydata/postgres-operator/internal/controller/postgrescluster"
-	"github.com/crunchydata/postgres-operator/internal/controller/runtime"
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/internal/testing/cmp"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/controller/ivorycluster"
+	"github.com/highgo/ivory-operator/internal/controller/runtime"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/internal/testing/cmp"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func TestGenerateHeader(t *testing.T) {
@@ -53,9 +53,9 @@ func TestGenerateHeader(t *testing.T) {
 	assert.NilError(t, err)
 	t.Cleanup(func() { assert.Check(t, env.Stop()) })
 
-	pgoScheme, err := runtime.CreatePostgresOperatorScheme()
+	ivyoScheme, err := runtime.CreateIvoryOperatorScheme()
 	assert.NilError(t, err)
-	cc, err := crclient.New(cfg, crclient.Options{Scheme: pgoScheme})
+	cc, err := crclient.New(cfg, crclient.Options{Scheme: ivyoScheme})
 	assert.NilError(t, err)
 
 	setupNamespace(t, cc)
@@ -65,7 +65,7 @@ func TestGenerateHeader(t *testing.T) {
 	server, err := dc.ServerVersion()
 	assert.NilError(t, err)
 
-	reconciler := postgrescluster.Reconciler{Client: cc}
+	reconciler := ivorycluster.Reconciler{Client: cc}
 
 	t.Run("error ensuring ID", func(t *testing.T) {
 		fakeClientWithOptionalError := &fakeClientWithError{
@@ -79,11 +79,11 @@ func TestGenerateHeader(t *testing.T) {
 		assert.Assert(t, cmp.Contains((*calls)[0], `upgrade check issue: could not apply configmap`))
 		assert.Equal(t, res.IsOpenShift, reconciler.IsOpenShift)
 		assert.Equal(t, deploymentID, res.DeploymentID)
-		pgoList := v1beta1.PostgresClusterList{}
-		err := cc.List(ctx, &pgoList)
+		ivyoList := v1beta1.IvoryClusterList{}
+		err := cc.List(ctx, &ivyoList)
 		assert.NilError(t, err)
-		assert.Equal(t, len(pgoList.Items), res.PGOClustersTotal)
-		assert.Equal(t, "1.2.3", res.PGOVersion)
+		assert.Equal(t, len(ivyoList.Items), res.IVYOClustersTotal)
+		assert.Equal(t, "1.2.3", res.IVYOVersion)
 		assert.Equal(t, server.String(), res.KubernetesEnv)
 	})
 
@@ -96,11 +96,11 @@ func TestGenerateHeader(t *testing.T) {
 		res := generateHeader(ctx, cfg, fakeClientWithOptionalError,
 			"1.2.3", reconciler.IsOpenShift)
 		assert.Equal(t, len(*calls), 1)
-		assert.Assert(t, cmp.Contains((*calls)[0], `upgrade check issue: could not count postgres clusters`))
+		assert.Assert(t, cmp.Contains((*calls)[0], `upgrade check issue: could not count ivory clusters`))
 		assert.Equal(t, res.IsOpenShift, reconciler.IsOpenShift)
 		assert.Equal(t, deploymentID, res.DeploymentID)
-		assert.Equal(t, 0, res.PGOClustersTotal)
-		assert.Equal(t, "1.2.3", res.PGOVersion)
+		assert.Equal(t, 0, res.IVYOClustersTotal)
+		assert.Equal(t, "1.2.3", res.IVYOVersion)
 		assert.Equal(t, server.String(), res.KubernetesEnv)
 	})
 
@@ -114,11 +114,11 @@ func TestGenerateHeader(t *testing.T) {
 		assert.Assert(t, cmp.Contains((*calls)[0], `upgrade check issue: could not retrieve server version`))
 		assert.Equal(t, res.IsOpenShift, reconciler.IsOpenShift)
 		assert.Equal(t, deploymentID, res.DeploymentID)
-		pgoList := v1beta1.PostgresClusterList{}
-		err := cc.List(ctx, &pgoList)
+		ivyoList := v1beta1.IvoryClusterList{}
+		err := cc.List(ctx, &ivyoList)
 		assert.NilError(t, err)
-		assert.Equal(t, len(pgoList.Items), res.PGOClustersTotal)
-		assert.Equal(t, "1.2.3", res.PGOVersion)
+		assert.Equal(t, len(ivyoList.Items), res.IVYOClustersTotal)
+		assert.Equal(t, "1.2.3", res.IVYOVersion)
 		assert.Equal(t, "", res.KubernetesEnv)
 	})
 
@@ -130,11 +130,11 @@ func TestGenerateHeader(t *testing.T) {
 		assert.Equal(t, len(*calls), 0)
 		assert.Equal(t, res.IsOpenShift, reconciler.IsOpenShift)
 		assert.Equal(t, deploymentID, res.DeploymentID)
-		pgoList := v1beta1.PostgresClusterList{}
-		err := cc.List(ctx, &pgoList)
+		ivyoList := v1beta1.IvoryClusterList{}
+		err := cc.List(ctx, &ivyoList)
 		assert.NilError(t, err)
-		assert.Equal(t, len(pgoList.Items), res.PGOClustersTotal)
-		assert.Equal(t, "1.2.3", res.PGOVersion)
+		assert.Equal(t, len(ivyoList.Items), res.IVYOClustersTotal)
+		assert.Equal(t, "1.2.3", res.IVYOVersion)
 		assert.Equal(t, server.String(), res.KubernetesEnv)
 	})
 }
@@ -175,7 +175,7 @@ func TestEnsureID(t *testing.T) {
 		cm := &corev1.ConfigMap{}
 		err := cc.Get(ctx, naming.AsObjectKey(
 			naming.UpgradeCheckConfigMap()), cm)
-		assert.Error(t, err, `configmaps "pgo-upgrade-check" not found`)
+		assert.Error(t, err, `configmaps "ivyo-upgrade-check" not found`)
 		ctx, calls := setupLogCapture(ctx)
 
 		newID := ensureDeploymentID(ctx, cc)
@@ -236,7 +236,7 @@ func TestEnsureID(t *testing.T) {
 
 		oldID := setupDeploymentID(t)
 		ctx, calls := setupLogCapture(ctx)
-		t.Setenv("PGO_NAMESPACE", "")
+		t.Setenv("IVYO_NAMESPACE", "")
 
 		newID := ensureDeploymentID(ctx, cc)
 		assert.Equal(t, len(*calls), 1)
@@ -264,7 +264,7 @@ func TestEnsureID(t *testing.T) {
 		cmRetrieved := &corev1.ConfigMap{}
 		err := cc.Get(ctx, naming.AsObjectKey(
 			naming.UpgradeCheckConfigMap()), cmRetrieved)
-		assert.Error(t, err, `configmaps "pgo-upgrade-check" not found`)
+		assert.Error(t, err, `configmaps "ivyo-upgrade-check" not found`)
 	})
 
 	t.Run("configmap failed to create, using preexisting ID", func(t *testing.T) {
@@ -296,7 +296,7 @@ func TestManageUpgradeCheckConfigMap(t *testing.T) {
 
 	t.Run("no namespace given", func(t *testing.T) {
 		ctx, calls := setupLogCapture(ctx)
-		t.Setenv("PGO_NAMESPACE", "")
+		t.Setenv("IVYO_NAMESPACE", "")
 
 		returnedCM := manageUpgradeCheckConfigMap(ctx, cc, "current-id")
 		assert.Equal(t, len(*calls), 1)
@@ -308,7 +308,7 @@ func TestManageUpgradeCheckConfigMap(t *testing.T) {
 		cmRetrieved := &corev1.ConfigMap{}
 		err := cc.Get(ctx, naming.AsObjectKey(
 			naming.UpgradeCheckConfigMap()), cmRetrieved)
-		assert.Error(t, err, `configmaps "pgo-upgrade-check" not found`)
+		assert.Error(t, err, `configmaps "ivyo-upgrade-check" not found`)
 
 		ctx, calls := setupLogCapture(ctx)
 		returnedCM := manageUpgradeCheckConfigMap(ctx, cc, "current-id")
@@ -430,7 +430,7 @@ func TestApplyConfigMap(t *testing.T) {
 	t.Run("successful create", func(t *testing.T) {
 		cmRetrieved := &corev1.ConfigMap{}
 		err := cc.Get(ctx, naming.AsObjectKey(naming.UpgradeCheckConfigMap()), cmRetrieved)
-		assert.Error(t, err, `configmaps "pgo-upgrade-check" not found`)
+		assert.Error(t, err, `configmaps "ivyo-upgrade-check" not found`)
 
 		cm := &corev1.ConfigMap{
 			ObjectMeta: naming.UpgradeCheckConfigMap(),
@@ -514,7 +514,7 @@ func TestApplyConfigMap(t *testing.T) {
 	t.Run("failure", func(t *testing.T) {
 		cmRetrieved := &corev1.ConfigMap{}
 		err := cc.Get(ctx, naming.AsObjectKey(naming.UpgradeCheckConfigMap()), cmRetrieved)
-		assert.Error(t, err, `configmaps "pgo-upgrade-check" not found`)
+		assert.Error(t, err, `configmaps "ivyo-upgrade-check" not found`)
 
 		cm := &corev1.ConfigMap{
 			ObjectMeta: naming.UpgradeCheckConfigMap(),
@@ -536,7 +536,7 @@ func TestGetManagedClusters(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("success", func(t *testing.T) {
-		fakeClient := setupFakeClientWithPGOScheme(t, true)
+		fakeClient := setupFakeClientWithIVYOScheme(t, true)
 		ctx, calls := setupLogCapture(ctx)
 		count := getManagedClusters(ctx, fakeClient)
 		assert.Equal(t, len(*calls), 0)
@@ -545,12 +545,12 @@ func TestGetManagedClusters(t *testing.T) {
 
 	t.Run("list throw error", func(t *testing.T) {
 		fakeClientWithOptionalError := &fakeClientWithError{
-			setupFakeClientWithPGOScheme(t, true), "list error",
+			setupFakeClientWithIVYOScheme(t, true), "list error",
 		}
 		ctx, calls := setupLogCapture(ctx)
 		count := getManagedClusters(ctx, fakeClientWithOptionalError)
 		assert.Equal(t, len(*calls), 1)
-		assert.Assert(t, cmp.Contains((*calls)[0], `upgrade check issue: could not count postgres clusters`))
+		assert.Assert(t, cmp.Contains((*calls)[0], `upgrade check issue: could not count ivory clusters`))
 		assert.Assert(t, count == 0)
 	})
 }
@@ -587,7 +587,7 @@ func TestAddHeader(t *testing.T) {
 		}
 		versionString := "1.2.3"
 		upgradeInfo := &clientUpgradeData{
-			PGOVersion: versionString,
+			IVYOVersion: versionString,
 		}
 
 		result, err := addHeader(req, upgradeInfo)
@@ -598,8 +598,8 @@ func TestAddHeader(t *testing.T) {
 		err = json.Unmarshal([]byte(header[0]), passedThroughData)
 		assert.NilError(t, err)
 
-		assert.Equal(t, passedThroughData.PGOVersion, "1.2.3")
+		assert.Equal(t, passedThroughData.IVYOVersion, "1.2.3")
 		// Failure to list clusters results in 0 returned
-		assert.Equal(t, passedThroughData.PGOClustersTotal, 0)
+		assert.Equal(t, passedThroughData.IVYOClustersTotal, 0)
 	})
 }

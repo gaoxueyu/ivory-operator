@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -14,7 +14,7 @@
 */
 
 // Package pki provides types and functions to support the public key
-// infrastructure of the Postgres Operator. It enforces a two layer system
+// infrastructure of the Ivory Operator. It enforces a two layer system
 // of certificate authorities and certificates.
 //
 // NewRootCertificateAuthority() creates a new root CA.

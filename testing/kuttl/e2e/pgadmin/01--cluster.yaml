@@ -14,8 +14,8 @@ stringData:
   password: myPassword
 ---
 # Create a cluster with a configured pgAdmin UI.
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: interfaced
   labels: { postgres-operator-test: kuttl }

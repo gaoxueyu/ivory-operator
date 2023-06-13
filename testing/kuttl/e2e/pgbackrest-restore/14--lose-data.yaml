@@ -6,8 +6,8 @@ commands:
       PRIMARY=$(
         kubectl get pod --namespace "${NAMESPACE}" \
           --output name --selector '
-            postgres-operator.crunchydata.com/cluster=original,
-            postgres-operator.crunchydata.com/role=master'
+            ivory-operator.highgo.com/cluster=original,
+            ivory-operator.highgo.com/role=master'
       )
       OBJECTIVE=$(
         kubectl exec --namespace "${NAMESPACE}" "${PRIMARY}" \
@@ -15,7 +15,7 @@ commands:
       )
 
       # Store the recovery objective for later steps.
-      kubectl annotate --namespace "${NAMESPACE}" postgrescluster/original \
+      kubectl annotate --namespace "${NAMESPACE}" ivorycluster/original \
         "testing/objective=${OBJECTIVE}"
 
       # A reason to restore. Wait for the change to be sent to the WAL archive.
@@ -34,8 +34,8 @@ commands:
       REPLICA=$(
         kubectl get pod --namespace "${NAMESPACE}" \
           --output name --selector '
-            postgres-operator.crunchydata.com/cluster=original,
-            postgres-operator.crunchydata.com/role=replica'
+            ivory-operator.highgo.com/cluster=original,
+            ivory-operator.highgo.com/role=replica'
       )
 
       kubectl exec --stdin --namespace "${NAMESPACE}" "${REPLICA}" \

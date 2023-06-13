@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	rbacv1 "k8s.io/api/rbac/v1"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // "list", "patch", and "watch" are required. Include "get" for good measure.
@@ -44,7 +44,7 @@ import (
 // +kubebuilder:rbac:namespace=patroni,groups="",resources="endpoints/restricted",verbs={create}
 
 // Permissions returns the RBAC rules Patroni needs for cluster.
-func Permissions(cluster *v1beta1.PostgresCluster) []rbacv1.PolicyRule {
+func Permissions(cluster *v1beta1.IvoryCluster) []rbacv1.PolicyRule {
 	// TODO(cbandy): This must change when using ConfigMaps for DCS.
 
 	rules := make([]rbacv1.PolicyRule, 0, 4)
@@ -70,7 +70,7 @@ func Permissions(cluster *v1beta1.PostgresCluster) []rbacv1.PolicyRule {
 	})
 
 	// When using Endpoints for DCS, Patroni tries to create the "{scope}-config" service.
-	// NOTE(cbandy): The PostgresCluster controller already creates this Service;
+	// NOTE(cbandy): The IvoryCluster controller already creates this Service;
 	// it might be possible to eliminate this permission if it also created the
 	// Endpoints.
 	rules = append(rules, rbacv1.PolicyRule{

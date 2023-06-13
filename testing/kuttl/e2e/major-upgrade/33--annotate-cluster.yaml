@@ -1,8 +1,8 @@
 ---
 # Annotate the cluster for an upgrade.
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: major-upgrade
   annotations:
-    postgres-operator.crunchydata.com/allow-upgrade: major-upgrade-do-it
+    ivory-operator.highgo.com/allow-upgrade: major-upgrade-do-it

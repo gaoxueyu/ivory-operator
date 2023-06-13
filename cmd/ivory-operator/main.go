@@ -1,0 +1,181 @@
+package main
+
+/*
+Copyright 2017 - 2023 Highgo Solutions, Inc.
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
+import (
+	"net/http"
+	"os"
+	"strings"
+
+	"github.com/go-logr/logr"
+	"go.opentelemetry.io/otel"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/rest"
+	cruntime "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+
+	"github.com/highgo/ivory-operator/internal/bridge"
+	ivorycluster "github.com/highgo/ivory-operator/internal/controller/ivorycluster"
+	"github.com/highgo/ivory-operator/internal/controller/runtime"
+	"github.com/highgo/ivory-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/util"
+)
+
+var versionString string
+
+// assertNoError panics when err is not nil.
+func assertNoError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func initLogging() {
+	// Configure a singleton that treats logr.Logger.V(1) as logrus.DebugLevel.
+	var verbosity int
+	if strings.EqualFold(os.Getenv("HIGHGO_DEBUG"), "true") {
+		verbosity = 1
+	}
+	logging.SetLogSink(logging.Logrus(os.Stdout, versionString, 1, verbosity))
+}
+
+func main() {
+	// Set any supplied feature gates; panic on any unrecognized feature gate
+	err := util.AddAndSetFeatureGates(os.Getenv("IVYO_FEATURE_GATES"))
+	assertNoError(err)
+
+	otelFlush, err := initOpenTelemetry()
+	assertNoError(err)
+	defer otelFlush()
+
+	initLogging()
+
+	// create a context that will be used to stop all controllers on a SIGTERM or SIGINT
+	ctx := cruntime.SetupSignalHandler()
+	log := logging.FromContext(ctx)
+	log.V(1).Info("debug flag set to true")
+
+	log.Info("feature gates enabled",
+		"IVYO_FEATURE_GATES", os.Getenv("IVYO_FEATURE_GATES"))
+
+	cruntime.SetLogger(log)
+
+	cfg, err := runtime.GetConfig()
+	assertNoError(err)
+
+	cfg.Wrap(otelTransportWrapper())
+
+	// Configure client-go to suppress warnings when warning headers are encountered. This prevents
+	// warnings from being logged over and over again during reconciliation (e.g. this will suppress
+	// deprecation warnings when using an older version of a resource for backwards compatibility).
+	rest.SetDefaultWarningHandler(rest.NoWarnings{})
+
+	mgr, err := runtime.CreateRuntimeManager(os.Getenv("IVYO_TARGET_NAMESPACE"), cfg, false)
+	assertNoError(err)
+
+	openshift := isOpenshift(cfg)
+	if openshift {
+		log.Info("detected OpenShift environment")
+	}
+
+	// add all IvorySQL Operator controllers to the runtime manager
+	addControllersToManager(mgr, openshift, log)
+
+	if util.DefaultMutableFeatureGate.Enabled(util.BridgeIdentifiers) {
+		constructor := func() *bridge.Client {
+			client := bridge.NewClient(os.Getenv("IVYO_BRIDGE_URL"), versionString)
+			client.Transport = otelTransportWrapper()(http.DefaultTransport)
+			return client
+		}
+
+		assertNoError(bridge.ManagedInstallationReconciler(mgr, constructor))
+	}
+
+	// Enable upgrade checking
+	/*
+		upgradeCheckingDisabled := strings.EqualFold(os.Getenv("CHECK_FOR_UPGRADES"), "false")
+		if !upgradeCheckingDisabled {
+			log.Info("upgrade checking enabled")
+			// get the URL for the check for upgrades endpoint if set in the env
+			assertNoError(upgradecheck.ManagedScheduler(mgr,
+				openshift, os.Getenv("CHECK_FOR_UPGRADES_URL"), versionString))
+		} else {
+			log.Info("upgrade checking disabled")
+		}*/
+
+	log.Info("starting controller runtime manager and will wait for signal to exit")
+
+	assertNoError(mgr.Start(ctx))
+	log.Info("signal received, exiting")
+}
+
+// addControllersToManager adds all IvorySQL Operator controllers to the provided controller
+// runtime manager.
+func addControllersToManager(mgr manager.Manager, openshift bool, log logr.Logger) {
+	ivoryReconciler := &ivorycluster.Reconciler{
+		Client:      mgr.GetClient(),
+		Owner:       ivorycluster.ControllerName,
+		Recorder:    mgr.GetEventRecorderFor(ivorycluster.ControllerName),
+		Tracer:      otel.Tracer(ivorycluster.ControllerName),
+		IsOpenShift: openshift,
+	}
+
+	if err := ivoryReconciler.SetupWithManager(mgr); err != nil {
+		log.Error(err, "unable to create IvoryCluster controller")
+		os.Exit(1)
+	}
+
+	//upgradeReconciler := &ivyupgrade.IvyUpgradeReconciler{
+	//	Client: mgr.GetClient(),
+	//	Owner:  "ivyupgrade-controller",
+	//	Scheme: mgr.GetScheme(),
+	//}
+	//
+	//if err := upgradeReconciler.SetupWithManager(mgr); err != nil {
+	//	log.Error(err, "unable to create IvyUpgrade controller")
+	//	os.Exit(1)
+	//}
+}
+
+func isOpenshift(cfg *rest.Config) bool {
+	const sccGroupName, sccKind = "security.openshift.io", "SecurityContextConstraints"
+
+	client, err := discovery.NewDiscoveryClientForConfig(cfg)
+	assertNoError(err)
+
+	groups, err := client.ServerGroups()
+	if err != nil {
+		assertNoError(err)
+	}
+	for _, g := range groups.Groups {
+		if g.Name != sccGroupName {
+			continue
+		}
+		for _, v := range g.Versions {
+			resourceList, err := client.ServerResourcesForGroupVersion(v.GroupVersion)
+			if err != nil {
+				assertNoError(err)
+			}
+			for _, r := range resourceList.APIResources {
+				if r.Kind == sccKind {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
+}

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -13,6 +13,6 @@
  limitations under the License.
 */
 
-// Package naming provides functions and constants for the postgres-operator
+// Package naming provides functions and constants for the ivory-operator
 // naming and labeling scheme.
 package naming

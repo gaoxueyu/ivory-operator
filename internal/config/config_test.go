@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -22,7 +22,7 @@ import (
 	"gotest.tools/v3/assert"
 	"sigs.k8s.io/yaml"
 
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 func saveEnv(t testing.TB, key string) {
@@ -50,7 +50,7 @@ func unsetEnv(t testing.TB, key string) {
 }
 
 func TestPGAdminContainerImage(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{}
+	cluster := &v1beta1.IvoryCluster{}
 
 	unsetEnv(t, "RELATED_IMAGE_PGADMIN")
 	assert.Equal(t, PGAdminContainerImage(cluster), "")
@@ -68,7 +68,7 @@ func TestPGAdminContainerImage(t *testing.T) {
 }
 
 func TestPGBackRestContainerImage(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{}
+	cluster := &v1beta1.IvoryCluster{}
 
 	unsetEnv(t, "RELATED_IMAGE_PGBACKREST")
 	assert.Equal(t, PGBackRestContainerImage(cluster), "")
@@ -86,7 +86,7 @@ func TestPGBackRestContainerImage(t *testing.T) {
 }
 
 func TestPGBouncerContainerImage(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{}
+	cluster := &v1beta1.IvoryCluster{}
 
 	unsetEnv(t, "RELATED_IMAGE_PGBOUNCER")
 	assert.Equal(t, PGBouncerContainerImage(cluster), "")
@@ -104,7 +104,7 @@ func TestPGBouncerContainerImage(t *testing.T) {
 }
 
 func TestPGExporterContainerImage(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{}
+	cluster := &v1beta1.IvoryCluster{}
 
 	unsetEnv(t, "RELATED_IMAGE_PGEXPORTER")
 	assert.Equal(t, PGExporterContainerImage(cluster), "")
@@ -121,27 +121,27 @@ func TestPGExporterContainerImage(t *testing.T) {
 	assert.Equal(t, PGExporterContainerImage(cluster), "spec-image")
 }
 
-func TestPostgresContainerImage(t *testing.T) {
-	cluster := &v1beta1.PostgresCluster{}
+func TestIvoryContainerImage(t *testing.T) {
+	cluster := &v1beta1.IvoryCluster{}
 	cluster.Spec.PostgresVersion = 12
 
-	unsetEnv(t, "RELATED_IMAGE_POSTGRES_12")
-	assert.Equal(t, PostgresContainerImage(cluster), "")
+	unsetEnv(t, "RELATED_IMAGE_IVORY_12")
+	assert.Equal(t, IvoryContainerImage(cluster), "")
 
-	setEnv(t, "RELATED_IMAGE_POSTGRES_12", "")
-	assert.Equal(t, PostgresContainerImage(cluster), "")
+	setEnv(t, "RELATED_IMAGE_IVORY_12", "")
+	assert.Equal(t, IvoryContainerImage(cluster), "")
 
-	setEnv(t, "RELATED_IMAGE_POSTGRES_12", "env-var-postgres")
-	assert.Equal(t, PostgresContainerImage(cluster), "env-var-postgres")
+	setEnv(t, "RELATED_IMAGE_IVORY_12", "env-var-ivory")
+	assert.Equal(t, IvoryContainerImage(cluster), "env-var-ivory")
 
 	cluster.Spec.Image = "spec-image"
-	assert.Equal(t, PostgresContainerImage(cluster), "spec-image")
+	assert.Equal(t, IvoryContainerImage(cluster), "spec-image")
 
 	cluster.Spec.Image = ""
 	cluster.Spec.PostGISVersion = "3.0"
-	setEnv(t, "RELATED_IMAGE_POSTGRES_12_GIS_3.0", "env-var-postgis")
-	assert.Equal(t, PostgresContainerImage(cluster), "env-var-postgis")
+	setEnv(t, "RELATED_IMAGE_IVORY_12_GIS_3.0", "env-var-postgis")
+	assert.Equal(t, IvoryContainerImage(cluster), "env-var-postgis")
 
 	cluster.Spec.Image = "spec-image"
-	assert.Equal(t, PostgresContainerImage(cluster), "spec-image")
+	assert.Equal(t, IvoryContainerImage(cluster), "spec-image")
 }

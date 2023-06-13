@@ -2,7 +2,7 @@ baseURL= ""
 
 languageCode = "en-us"
 DefaultContentLanguage = "en"
-title = "PGO, the Postgres Operator from Crunchy Data"
+title = "IVYO, the Ivory Operator from Highgo"
 theme = "crunchy-hugo-theme"
 pygmentsCodeFences = true
 pygmentsStyle = "monokailight"
@@ -15,7 +15,7 @@ defaultContentLanguageInSubdir= false
 enableMissingTranslationPlaceholders = false
 
 [params]
-editURL = "https://github.com/CrunchyData/postgres-operator/edit/master/docs/content/"
+editURL = "https://github.com/gaoxueyu/ivory-operator/tree/master/docs/content"
 showVisitedLinks = false # default is false
 themeStyle = "flex" # "original" or "flex" # default "flex"
 themeVariant = "" # choose theme variant "green", "gold" , "gray", "blue" (default)
@@ -45,7 +45,7 @@ postgres14GIS32ComponentTagUbi8 = "ubi8-14.7-3.2-0"
 postgres14GIS32TagUbi8 = "ubi8-14.7-3.2-5.3.1-0"
 postgres14GIS31ComponentTagUbi8 = "ubi8-14.7-3.1-0"
 postgres14GIS31TagUbi8 = "ubi8-14.7-3.1-5.3.1-0"
-fromPostgresVersion = "14"
+fromIvoryVersion = "14"
 postgresVersion = "15"
 postgresVersion15 = "15.2"
 postgresVersion14 = "14.7"

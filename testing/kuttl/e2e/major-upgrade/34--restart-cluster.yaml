@@ -1,8 +1,8 @@
 ---
 # Once the pgupgrade is finished, update the version and set shutdown to false
 # in the postgres cluster
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: major-upgrade
 spec:

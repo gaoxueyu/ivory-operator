@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -21,20 +21,20 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/logging"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/internal/postgres/password"
-	"github.com/crunchydata/postgres-operator/internal/util"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/ivory/password"
+	"github.com/highgo/ivory-operator/internal/logging"
+	"github.com/highgo/ivory-operator/internal/util"
 )
 
 const (
-	postgresqlSchema = "pgbouncer"
+	ivorysqlSchema = "pgbouncer"
 
 	// NOTE(cbandy): The "pgbouncer" database is special in PgBouncer and seems
 	// to also be related to the "auth_user".
 	// - https://github.com/pgbouncer/pgbouncer/issues/568
 	// - https://github.com/pgbouncer/pgbouncer/issues/302#issuecomment-815097248
-	postgresqlUser = "_crunchypgbouncer"
+	ivorysqlUser = "_highgopgbouncer"
 )
 
 // sqlAuthenticationQuery returns the SECURITY DEFINER function that allows
@@ -42,7 +42,7 @@ const (
 func sqlAuthenticationQuery(sqlFunctionName string) string {
 	// Only a subset of authorization identifiers should be accessible to
 	// PgBouncer.
-	// - https://www.postgresql.org/docs/current/catalog-pg-authid.html
+	// - https://www.ivorysql.org/docs/current/catalog-pg-authid.html
 	sqlAuthorizationConditions := strings.Join([]string{
 		// Only those with permission to login.
 		`pg_authid.rolcanlogin`,
@@ -52,7 +52,7 @@ func sqlAuthenticationQuery(sqlFunctionName string) string {
 		// No replicators.
 		`NOT pg_authid.rolreplication`,
 		// Not the PgBouncer role itself.
-		`pg_authid.rolname <> ` + util.SQLQuoteLiteral(postgresqlUser),
+		`pg_authid.rolname <> ` + util.SQLQuoteLiteral(ivorysqlUser),
 		// Those without a password expiration or an expiration in the future.
 		`(pg_authid.rolvaliduntil IS NULL OR pg_authid.rolvaliduntil >= CURRENT_TIMESTAMP)`,
 	}, "\n    AND ")
@@ -67,8 +67,8 @@ RETURNS TABLE(username TEXT, password TEXT) AS ` + util.SQLQuoteLiteral(`
 LANGUAGE SQL STABLE SECURITY DEFINER;`)
 }
 
-// DisableInPostgreSQL removes any objects created by EnableInPostgreSQL.
-func DisableInPostgreSQL(ctx context.Context, exec postgres.Executor) error {
+// DisableInIvorySQL removes any objects created by EnableInIvorySQL.
+func DisableInIvorySQL(ctx context.Context, exec ivory.Executor) error {
 	log := logging.FromContext(ctx)
 
 	// First, remove PgBouncer objects from all databases and database templates.
@@ -76,7 +76,7 @@ func DisableInPostgreSQL(ctx context.Context, exec postgres.Executor) error {
 	stdout, stderr, err := exec.ExecInAllDatabases(ctx,
 		strings.Join([]string{
 			// Quiet NOTICE messages from IF EXISTS statements.
-			// - https://www.postgresql.org/docs/current/runtime-config-client.html
+			// - https://www.ivorysql.org/docs/current/runtime-config-client.html
 			`SET client_min_messages = WARNING;`,
 
 			// Drop the following objects in a transaction.
@@ -100,8 +100,8 @@ SELECT pg_catalog.format('DROP OWNED BY %I CASCADE', :'username')
 			`COMMIT;`,
 		}, "\n"),
 		map[string]string{
-			"username":  postgresqlUser,
-			"namespace": postgresqlSchema,
+			"username":  ivorysqlUser,
+			"namespace": ivorysqlSchema,
 
 			"ON_ERROR_STOP": "on", // Abort when any one statement fails.
 			"QUIET":         "on", // Do not print successful statements to stdout.
@@ -115,7 +115,7 @@ SELECT pg_catalog.format('DROP OWNED BY %I CASCADE', :'username')
 			`SELECT pg_catalog.current_database()`,
 			`SET client_min_messages = WARNING; DROP ROLE IF EXISTS :"username";`,
 			map[string]string{
-				"username": postgresqlUser,
+				"username": ivorysqlUser,
 
 				"ON_ERROR_STOP": "on", // Abort when any one statement fails.
 				"QUIET":         "on", // Do not print successful statements to stdout.
@@ -127,23 +127,23 @@ SELECT pg_catalog.format('DROP OWNED BY %I CASCADE', :'username')
 	return err
 }
 
-// EnableInPostgreSQL creates the PgBouncer user, schema, and SECURITY DEFINER
+// EnableInIvorySQL creates the PgBouncer user, schema, and SECURITY DEFINER
 // function that allows it to authenticate clients using their password stored
-// in PostgreSQL.
-func EnableInPostgreSQL(
-	ctx context.Context, exec postgres.Executor, clusterSecret *corev1.Secret,
+// in IvorySQL.
+func EnableInIvorySQL(
+	ctx context.Context, exec ivory.Executor, clusterSecret *corev1.Secret,
 ) error {
 	log := logging.FromContext(ctx)
 
 	stdout, stderr, err := exec.ExecInAllDatabases(ctx,
 		strings.Join([]string{
 			// Quiet NOTICE messages from IF NOT EXISTS statements.
-			// - https://www.postgresql.org/docs/current/runtime-config-client.html
+			// - https://www.ivorysql.org/docs/current/runtime-config-client.html
 			`SET client_min_messages = WARNING;`,
 
 			// Create the following objects in a transaction so that permissions
 			// are correct before any other session sees them.
-			// - https://www.postgresql.org/docs/current/ddl-priv.html
+			// - https://www.ivorysql.org/docs/current/ddl-priv.html
 			`BEGIN;`,
 
 			// Create the PgBouncer user if it does not already exist.
@@ -183,7 +183,7 @@ REVOKE ALL PRIVILEGES
     ON FUNCTION :"namespace".get_auth(username TEXT) TO :"username";`),
 
 			// Remove "public" from the PgBouncer user's search_path.
-			// - https://www.postgresql.org/docs/current/perm-functions.html
+			// - https://www.ivorysql.org/docs/current/perm-functions.html
 			`ALTER ROLE :"username" SET search_path TO :'namespace';`,
 
 			// Allow the PgBouncer user to to login.
@@ -193,8 +193,8 @@ REVOKE ALL PRIVILEGES
 			`COMMIT;`,
 		}, "\n"),
 		map[string]string{
-			"username":  postgresqlUser,
-			"namespace": postgresqlSchema,
+			"username":  ivorysqlUser,
+			"namespace": ivorysqlSchema,
 			"verifier":  string(clusterSecret.Data[verifierSecretKey]),
 
 			"ON_ERROR_STOP": "on", // Abort when any one statement fails.
@@ -207,7 +207,7 @@ REVOKE ALL PRIVILEGES
 }
 
 func generatePassword() (plaintext, verifier string, err error) {
-	// PgBouncer can login to PostgreSQL using either MD5 or SCRAM-SHA-256.
+	// PgBouncer can login to IvorySQL using either MD5 or SCRAM-SHA-256.
 	// When using MD5, the (hashed) verifier can be stored in PgBouncer's
 	// authentication file. When using SCRAM, the plaintext password must be
 	// stored.
@@ -221,14 +221,14 @@ func generatePassword() (plaintext, verifier string, err error) {
 	return
 }
 
-func postgresqlHBAs() []postgres.HostBasedAuthentication {
+func ivorysqlHBAs() []ivory.HostBasedAuthentication {
 	// PgBouncer must connect over TLS using a SCRAM password. Other network
 	// connections are forbidden.
-	// - https://www.postgresql.org/docs/current/auth-pg-hba-conf.html
-	// - https://www.postgresql.org/docs/current/auth-password.html
+	// - https://www.ivorysql.org/docs/current/auth-pg-hba-conf.html
+	// - https://www.ivorysql.org/docs/current/auth-password.html
 
-	return []postgres.HostBasedAuthentication{
-		*postgres.NewHBA().User(postgresqlUser).TLS().Method("scram-sha-256"),
-		*postgres.NewHBA().User(postgresqlUser).TCP().Method("reject"),
+	return []ivory.HostBasedAuthentication{
+		*ivory.NewHBA().User(ivorysqlUser).TLS().Method("scram-sha-256"),
+		*ivory.NewHBA().User(ivorysqlUser).TCP().Method("reject"),
 	}
 }

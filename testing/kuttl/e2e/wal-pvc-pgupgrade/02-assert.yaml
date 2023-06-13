@@ -1,9 +1,9 @@
 ---
 # Since the cluster is missing the annotation, we get this condition
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PGUpgrade
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvyUpgrade
 metadata:
-  name: wal-pvc-pgupgrade-do-it
+  name: wal-pvc-ivyupgrade-do-it
 status:
   conditions:
   - type:   "Progressing"

@@ -1,7 +1,7 @@
 ---
 # Create a cluster that is already at the correct version
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: major-upgrade
 spec:

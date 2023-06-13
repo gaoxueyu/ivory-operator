@@ -1,8 +1,8 @@
 ---
 # Shutdown the cluster -- but without the annotation.
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
-  name: wal-pvc-pgupgrade
+  name: wal-pvc-ivyupgrade
 spec:
   shutdown: true

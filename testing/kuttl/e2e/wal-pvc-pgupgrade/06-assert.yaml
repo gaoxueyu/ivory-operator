@@ -2,13 +2,13 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: wal-pvc-pgupgrade-after
+  name: wal-pvc-ivyupgrade-after
 status:
   succeeded: 1
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: wal-pvc-pgupgrade-after-replica
+  name: wal-pvc-ivyupgrade-after-replica
 status:
   succeeded: 1

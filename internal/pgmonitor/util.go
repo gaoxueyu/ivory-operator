@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -16,11 +16,11 @@
 package pgmonitor
 
 import (
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // ExporterEnabled returns true if the monitoring exporter is enabled
-func ExporterEnabled(cluster *v1beta1.PostgresCluster) bool {
+func ExporterEnabled(cluster *v1beta1.IvoryCluster) bool {
 	if cluster.Spec.Monitoring == nil {
 		return false
 	}

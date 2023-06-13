@@ -1,6 +1,6 @@
 ---
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: delete-switchover-with-timestamp
 status:
@@ -16,21 +16,21 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-switchover-with-timestamp
-    postgres-operator.crunchydata.com/role: master
+    ivory-operator.highgo.com/cluster: delete-switchover-with-timestamp
+    ivory-operator.highgo.com/role: master
 ---
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-switchover-with-timestamp
-    postgres-operator.crunchydata.com/role: replica
+    ivory-operator.highgo.com/cluster: delete-switchover-with-timestamp
+    ivory-operator.highgo.com/role: replica
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: delete-switchover-with-timestamp
-    postgres-operator.crunchydata.com/pgbackrest-backup: replica-create
+    ivory-operator.highgo.com/cluster: delete-switchover-with-timestamp
+    ivory-operator.highgo.com/pgbackrest-backup: replica-create
 status:
   succeeded: 1

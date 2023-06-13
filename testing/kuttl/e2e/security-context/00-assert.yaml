@@ -1,5 +1,5 @@
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: security-context
 status:
@@ -13,8 +13,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: security-context
-    postgres-operator.crunchydata.com/pgbackrest-backup: replica-create
+    ivory-operator.highgo.com/cluster: security-context
+    ivory-operator.highgo.com/pgbackrest-backup: replica-create
 status:
   succeeded: 1
 ---
@@ -23,10 +23,10 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: security-context
-    postgres-operator.crunchydata.com/pgbackrest: ""
-    postgres-operator.crunchydata.com/pgbackrest-backup: replica-create
-    postgres-operator.crunchydata.com/pgbackrest-repo: repo1
+    ivory-operator.highgo.com/cluster: security-context
+    ivory-operator.highgo.com/pgbackrest: ""
+    ivory-operator.highgo.com/pgbackrest-backup: replica-create
+    ivory-operator.highgo.com/pgbackrest-repo: repo1
 spec:
   containers:
   - name: pgbackrest
@@ -41,11 +41,11 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: security-context
-    postgres-operator.crunchydata.com/data: postgres
-    postgres-operator.crunchydata.com/instance-set: instance1
-    postgres-operator.crunchydata.com/patroni: security-context-ha
-    postgres-operator.crunchydata.com/role: master
+    ivory-operator.highgo.com/cluster: security-context
+    ivory-operator.highgo.com/data: postgres
+    ivory-operator.highgo.com/instance-set: instance1
+    ivory-operator.highgo.com/patroni: security-context-ha
+    ivory-operator.highgo.com/role: master
 spec:
   containers:
   - name: database
@@ -97,9 +97,9 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: security-context
-    postgres-operator.crunchydata.com/data: pgadmin
-    postgres-operator.crunchydata.com/role: pgadmin
+    ivory-operator.highgo.com/cluster: security-context
+    ivory-operator.highgo.com/data: pgadmin
+    ivory-operator.highgo.com/role: pgadmin
     statefulset.kubernetes.io/pod-name: security-context-pgadmin-0
   name: security-context-pgadmin-0
 spec:
@@ -129,8 +129,8 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: security-context
-    postgres-operator.crunchydata.com/role: pgbouncer
+    ivory-operator.highgo.com/cluster: security-context
+    ivory-operator.highgo.com/role: pgbouncer
 spec:
   containers:
   - name: pgbouncer
@@ -151,10 +151,10 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: security-context
-    postgres-operator.crunchydata.com/data: pgbackrest
-    postgres-operator.crunchydata.com/pgbackrest: ""
-    postgres-operator.crunchydata.com/pgbackrest-dedicated: ""
+    ivory-operator.highgo.com/cluster: security-context
+    ivory-operator.highgo.com/data: pgbackrest
+    ivory-operator.highgo.com/pgbackrest: ""
+    ivory-operator.highgo.com/pgbackrest-dedicated: ""
     statefulset.kubernetes.io/pod-name: security-context-repo-host-0
   name: security-context-repo-host-0
 spec:

@@ -1,6 +1,6 @@
 ---
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: switchover
 status:
@@ -16,12 +16,12 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: switchover
-    postgres-operator.crunchydata.com/role: master
+    ivory-operator.highgo.com/cluster: switchover
+    ivory-operator.highgo.com/role: master
 ---
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: switchover
-    postgres-operator.crunchydata.com/role: replica
+    ivory-operator.highgo.com/cluster: switchover
+    ivory-operator.highgo.com/role: replica

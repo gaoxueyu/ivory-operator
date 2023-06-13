@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -23,21 +23,21 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 
-	"github.com/crunchydata/postgres-operator/internal/config"
-	"github.com/crunchydata/postgres-operator/internal/initialize"
-	"github.com/crunchydata/postgres-operator/internal/naming"
-	"github.com/crunchydata/postgres-operator/internal/pki"
-	"github.com/crunchydata/postgres-operator/internal/postgres"
-	"github.com/crunchydata/postgres-operator/internal/util"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/config"
+	"github.com/highgo/ivory-operator/internal/initialize"
+	ivory "github.com/highgo/ivory-operator/internal/ivory"
+	"github.com/highgo/ivory-operator/internal/naming"
+	"github.com/highgo/ivory-operator/internal/pki"
+	"github.com/highgo/ivory-operator/internal/util"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 // AddRepoVolumesToPod adds pgBackRest repository volumes to the provided Pod template spec, while
 // also adding associated volume mounts to the containers specified.
-func AddRepoVolumesToPod(postgresCluster *v1beta1.PostgresCluster, template *corev1.PodTemplateSpec,
+func AddRepoVolumesToPod(ivoryCluster *v1beta1.IvoryCluster, template *corev1.PodTemplateSpec,
 	repoPVCNames map[string]string, containerNames ...string) error {
 
-	for _, repo := range postgresCluster.Spec.Backups.PGBackRest.Repos {
+	for _, repo := range ivoryCluster.Spec.Backups.PGBackRest.Repos {
 		// we only care about repos created using PVCs
 		if repo.Volume == nil {
 			continue
@@ -49,7 +49,7 @@ func AddRepoVolumesToPod(postgresCluster *v1beta1.PostgresCluster, template *cor
 			repoVolName = repoPVCNames[repo.Name]
 		} else {
 			// use the default name to create a new volume
-			repoVolName = naming.PGBackRestRepoVolume(postgresCluster,
+			repoVolName = naming.PGBackRestRepoVolume(ivoryCluster,
 				repo.Name).Name
 		}
 		template.Spec.Volumes = append(template.Spec.Volumes, corev1.Volume{
@@ -107,7 +107,7 @@ func AddRepoVolumesToPod(postgresCluster *v1beta1.PostgresCluster, template *cor
 // for an instance of cluster to pod. The database container and any pgBackRest
 // containers must already be in pod.
 func AddConfigToInstancePod(
-	cluster *v1beta1.PostgresCluster, pod *corev1.PodSpec,
+	cluster *v1beta1.IvoryCluster, pod *corev1.PodSpec,
 ) {
 	configmap := corev1.VolumeProjection{ConfigMap: &corev1.ConfigMapProjection{}}
 	configmap.ConfigMap.Name = naming.PGBackRestConfig(cluster).Name
@@ -117,7 +117,7 @@ func AddConfigToInstancePod(
 	}
 
 	// As the cluster transitions from having a repository host to having none,
-	// PostgreSQL instances that have not rolled out expect to mount client
+	// IvorySQL instances that have not rolled out expect to mount client
 	// certificates. Specify those files are optional so the configuration
 	// volumes stay valid and Kubernetes propagates their contents to those pods.
 	secret := corev1.VolumeProjection{Secret: &corev1.SecretProjection{}}
@@ -152,7 +152,7 @@ func AddConfigToInstancePod(
 // the dedicated repository host of cluster to pod. The pgBackRest containers
 // must already be in pod.
 func AddConfigToRepoPod(
-	cluster *v1beta1.PostgresCluster, pod *corev1.PodSpec,
+	cluster *v1beta1.IvoryCluster, pod *corev1.PodSpec,
 ) {
 	configmap := corev1.VolumeProjection{ConfigMap: &corev1.ConfigMapProjection{}}
 	configmap.ConfigMap.Name = naming.PGBackRestConfig(cluster).Name
@@ -179,7 +179,7 @@ func AddConfigToRepoPod(
 // for the restore job of cluster to pod. The pgBackRest containers must
 // already be in pod.
 func AddConfigToRestorePod(
-	cluster *v1beta1.PostgresCluster, sourceCluster *v1beta1.PostgresCluster, pod *corev1.PodSpec,
+	cluster *v1beta1.IvoryCluster, sourceCluster *v1beta1.IvoryCluster, pod *corev1.PodSpec,
 ) {
 	configmap := corev1.VolumeProjection{ConfigMap: &corev1.ConfigMapProjection{}}
 	configmap.ConfigMap.Name = naming.PGBackRestConfig(cluster).Name
@@ -188,7 +188,7 @@ func AddConfigToRestorePod(
 		// different from the one we are building/creating. For now the
 		// stanza options are "pg1-path", "pg1-port", and "pg1-socket-path"
 		// and these are safe enough to use across different clusters running
-		// the same PostgreSQL version. When that list grows, consider changing
+		// the same IvorySQL version. When that list grows, consider changing
 		// this to use local stanza options and remote repository options.
 		// See also [RestoreConfig].
 		{Key: CMInstanceKey, Path: CMInstanceKey},
@@ -212,7 +212,7 @@ func AddConfigToRestorePod(
 		sources = append(sources, cluster.Spec.DataSource.PGBackRest.Configuration...)
 	}
 
-	// For a PostgresCluster restore, append all pgBackRest configuration from
+	// For a IvoryCluster restore, append all pgBackRest configuration from
 	// the source cluster for the restore
 	if sourceCluster != nil {
 		sources = append(sources, sourceCluster.Spec.Backups.PGBackRest.Configuration...)
@@ -258,9 +258,9 @@ func addConfigVolumeAndMounts(
 }
 
 // addServerContainerAndVolume adds the TLS server container and certificate
-// projections to pod. Any PostgreSQL data and WAL volumes in pod are also mounted.
+// projections to pod. Any IvorySQL data and WAL volumes in pod are also mounted.
 func addServerContainerAndVolume(
-	cluster *v1beta1.PostgresCluster, pod *corev1.PodSpec,
+	cluster *v1beta1.IvoryCluster, pod *corev1.PodSpec,
 	certificates []corev1.VolumeProjection, resources *corev1.ResourceRequirements,
 ) {
 	serverVolumeMount := corev1.VolumeMount{
@@ -298,21 +298,21 @@ func addServerContainerAndVolume(
 		container.Resources = *resources
 	}
 
-	// Mount PostgreSQL volumes that are present in pod.
-	postgresMounts := map[string]corev1.VolumeMount{
-		postgres.DataVolumeMount().Name: postgres.DataVolumeMount(),
-		postgres.WALVolumeMount().Name:  postgres.WALVolumeMount(),
+	// Mount IvorySQL volumes that are present in pod.
+	ivoryMounts := map[string]corev1.VolumeMount{
+		ivory.DataVolumeMount().Name: ivory.DataVolumeMount(),
+		ivory.WALVolumeMount().Name:  ivory.WALVolumeMount(),
 	}
 	if util.DefaultMutableFeatureGate.Enabled(util.TablespaceVolumes) {
 		for _, instance := range cluster.Spec.InstanceSets {
 			for _, vol := range instance.TablespaceVolumes {
-				tablespaceVolumeMount := postgres.TablespaceVolumeMount(vol.Name)
-				postgresMounts[tablespaceVolumeMount.Name] = tablespaceVolumeMount
+				tablespaceVolumeMount := ivory.TablespaceVolumeMount(vol.Name)
+				ivoryMounts[tablespaceVolumeMount.Name] = tablespaceVolumeMount
 			}
 		}
 	}
 	for i := range pod.Volumes {
-		if mount, ok := postgresMounts[pod.Volumes[i].Name]; ok {
+		if mount, ok := ivoryMounts[pod.Volumes[i].Name]; ok {
 			container.VolumeMounts = append(container.VolumeMounts, mount)
 		}
 	}
@@ -339,9 +339,9 @@ func addServerContainerAndVolume(
 }
 
 // AddServerToInstancePod adds the TLS server container and volume to pod for
-// an instance of cluster. Any PostgreSQL volumes must already be in pod.
+// an instance of cluster. Any IvorySQL volumes must already be in pod.
 func AddServerToInstancePod(
-	cluster *v1beta1.PostgresCluster, pod *corev1.PodSpec,
+	cluster *v1beta1.IvoryCluster, pod *corev1.PodSpec,
 	instanceCertificateSecretName string,
 ) {
 	certificates := []corev1.VolumeProjection{{
@@ -364,7 +364,7 @@ func AddServerToInstancePod(
 // AddServerToRepoPod adds the TLS server container and volume to pod for
 // the dedicated repository host of cluster.
 func AddServerToRepoPod(
-	cluster *v1beta1.PostgresCluster, pod *corev1.PodSpec,
+	cluster *v1beta1.IvoryCluster, pod *corev1.PodSpec,
 ) {
 	certificates := []corev1.VolumeProjection{{
 		Secret: &corev1.SecretProjection{
@@ -385,7 +385,7 @@ func AddServerToRepoPod(
 
 // InstanceCertificates populates the shared Secret with certificates needed to run pgBackRest.
 func InstanceCertificates(ctx context.Context,
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	inRoot pki.Certificate,
 	inDNS pki.Certificate, inDNSKey pki.PrivateKey,
 	outInstanceCertificates *corev1.Secret,
@@ -406,24 +406,24 @@ func InstanceCertificates(ctx context.Context,
 	return err
 }
 
-// ReplicaCreateCommand returns the command that can initialize the PostgreSQL
+// ReplicaCreateCommand returns the command that can initialize the IvorySQL
 // data directory on an instance from one of cluster's repositories. It returns
 // nil when no repository is available.
 func ReplicaCreateCommand(
-	cluster *v1beta1.PostgresCluster, instance *v1beta1.PostgresInstanceSetSpec,
+	cluster *v1beta1.IvoryCluster, instance *v1beta1.IvoryInstanceSetSpec,
 ) []string {
 	command := func(repoName string) []string {
 		return []string{
 			"pgbackrest", "restore", "--delta",
 			"--stanza=" + DefaultStanzaName,
 			"--repo=" + strings.TrimPrefix(repoName, "repo"),
-			"--link-map=pg_wal=" + postgres.WALDirectory(cluster, instance),
+			"--link-map=pg_wal=" + ivory.WALDirectory(cluster, instance),
 
-			// Do not create a recovery signal file on PostgreSQL v12 or later;
+			// Do not create a recovery signal file on IvorySQL v12 or later;
 			// Patroni creates a standby signal file which takes precedence.
-			// Patroni manages recovery.conf prior to PostgreSQL v12.
+			// Patroni manages recovery.conf prior to IvorySQL v12.
 			// - https://github.com/pgbackrest/pgbackrest/blob/release/2.38/src/command/restore/restore.c#L1824
-			// - https://www.postgresql.org/docs/12/runtime-config-wal.html
+			// - https://www.ivorysql.org/docs/12/runtime-config-wal.html
 			"--type=standby",
 		}
 	}
@@ -468,7 +468,7 @@ func RestoreConfig(
 	// TODO(cbandy): This is the *entire* instance configuration from another
 	// cluster. For now, the stanza options are "pg1-path", "pg1-port", and
 	// "pg1-socket-path" and these are safe enough to use across different
-	// clusters running the same PostgreSQL version. When that list grows,
+	// clusters running the same IvorySQL version. When that list grows,
 	// consider changing this to use local stanza options and remote repository options.
 	targetConfigMap.Data[CMInstanceKey] = sourceConfigMap.Data[CMInstanceKey]
 
@@ -487,7 +487,7 @@ func RestoreConfig(
 
 // Secret populates the pgBackRest Secret.
 func Secret(ctx context.Context,
-	inCluster *v1beta1.PostgresCluster,
+	inCluster *v1beta1.IvoryCluster,
 	inRepoHost *appsv1.StatefulSet,
 	inRoot *pki.RootCertificateAuthority,
 	inSecret *corev1.Secret,
@@ -502,7 +502,7 @@ func Secret(ctx context.Context,
 		// The server verifies its "tls-server-auth" option contains the common
 		// name (CN) of the certificate presented by a client. The entire
 		// cluster uses a single client certificate so the "tls-server-auth"
-		// option can stay the same when PostgreSQL instances and repository
+		// option can stay the same when IvorySQL instances and repository
 		// hosts are added or removed.
 		leaf := &pki.LeafCertificate{}
 		commonName := clientCommonName(inCluster)

@@ -1,5 +1,5 @@
 /*
- Copyright 2021 - 2023 Crunchy Data Solutions, Inc.
+ Copyright 2021 - 2023 Highgo Solutions, Inc.
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -24,12 +24,12 @@ import (
 	"k8s.io/apimachinery/pkg/util/rand"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	"github.com/crunchydata/postgres-operator/internal/config"
-	"github.com/crunchydata/postgres-operator/pkg/apis/postgres-operator.crunchydata.com/v1beta1"
+	"github.com/highgo/ivory-operator/internal/config"
+	"github.com/highgo/ivory-operator/pkg/apis/ivory-operator.highgo.com/v1beta1"
 )
 
 const (
-	// ContainerDatabase is the name of the container running PostgreSQL and
+	// ContainerDatabase is the name of the container running IvorySQL and
 	// supporting tools: Patroni, pgBackRest, etc.
 	ContainerDatabase = "database"
 
@@ -48,9 +48,9 @@ const (
 	// ContainerPGBouncerConfig is the name of a container supporting PgBouncer.
 	ContainerPGBouncerConfig = "pgbouncer-config"
 
-	// ContainerPostgresStartup is the name of the initialization container
-	// that prepares the filesystem for PostgreSQL.
-	ContainerPostgresStartup = "postgres-startup"
+	// ContainerIvoryStartup is the name of the initialization container
+	// that prepares the filesystem for IvorySQL.
+	ContainerIvoryStartup = "ivory-startup"
 
 	// ContainerClientCertCopy is the name of the container that is responsible for copying and
 	// setting proper permissions on the client certificate and key after initialization whenever
@@ -85,23 +85,23 @@ const (
 	PortPGAdmin = "pgadmin"
 	// PortPGBouncer is the name of a port that connects to PgBouncer.
 	PortPGBouncer = "pgbouncer"
-	// PortPostgreSQL is the name of a port that connects to PostgreSQL.
-	PortPostgreSQL = "postgres"
+	// PortIvorySQL is the name of a port that connects to IvorySQL.
+	PortIvorySQL = "ivory"
 )
 
 const (
 	// RootCertSecret is the default root certificate secret name
-	RootCertSecret = "pgo-root-cacert" /* #nosec */
+	RootCertSecret = "ivyo-root-cacert" /* #nosec */
 	// ClusterCertSecret is the default cluster leaf certificate secret name
 	ClusterCertSecret = "%s-cluster-cert" /* #nosec */
 )
 
 const (
 	// CertVolume is the name of the Certificate volume and volume mount in a
-	// PostgreSQL instance Pod
+	// IvorySQL instance Pod
 	CertVolume = "cert-volume"
 
-	// CertMountPath is the path for mounting the postgrescluster certificates
+	// CertMountPath is the path for mounting the ivorycluster certificates
 	// and key
 	CertMountPath = "/pgconf/tls"
 
@@ -114,29 +114,29 @@ const (
 	// https://github.com/kubernetes/kubernetes/issues/57923
 	ReplicationTmp = "/tmp/replication"
 
-	// ReplicationCert is the secret key to the postgrescluster's
+	// ReplicationCert is the secret key to the ivorycluster's
 	// replication/rewind user's client certificate
 	ReplicationCert = "tls.crt"
 
-	// ReplicationCertPath is the path to the postgrescluster's replication/rewind
+	// ReplicationCertPath is the path to the ivorycluster's replication/rewind
 	// user's client certificate
 	ReplicationCertPath = "replication/tls.crt"
 
-	// ReplicationPrivateKey is the secret key to the postgrescluster's
+	// ReplicationPrivateKey is the secret key to the ivorycluster's
 	// replication/rewind user's client private key
 	ReplicationPrivateKey = "tls.key"
 
-	// ReplicationPrivateKeyPath is the path to the postgrescluster's
+	// ReplicationPrivateKeyPath is the path to the ivorycluster's
 	// replication/rewind user's client private key
 	ReplicationPrivateKeyPath = "replication/tls.key"
 
-	// ReplicationCACert is the key name of the postgrescluster's replication/rewind
+	// ReplicationCACert is the key name of the ivorycluster's replication/rewind
 	// user's client CA certificate
 	// Note: when using auto-generated certificates, this will be identical to the
 	// server CA cert
 	ReplicationCACert = "ca.crt"
 
-	// ReplicationCACertPath is the path to the postgrescluster's replication/rewind
+	// ReplicationCACertPath is the path to the ivorycluster's replication/rewind
 	// user's client CA certificate
 	ReplicationCACertPath = "replication/ca.crt"
 )
@@ -153,26 +153,26 @@ const (
 	PGBackRestRepoName = "%s-pgbackrest-repo-%s"
 
 	// PGBackRestPGDataLogPath is the pgBackRest default log path configuration used by the
-	// PostgreSQL instance.
+	// IvorySQL instance.
 	PGBackRestPGDataLogPath = "/pgdata/pgbackrest/log"
 
 	// PGBackRestRepoLogPath is the pgBackRest default log path configuration used by the
 	// dedicated repo host, if configured.
 	PGBackRestRepoLogPath = "/pgbackrest/%s/log"
 
-	// suffix used with postgrescluster name for associated configmap.
+	// suffix used with ivorycluster name for associated configmap.
 	// for instance, if the cluster is named 'mycluster', the
 	// configmap will be named 'mycluster-pgbackrest-config'
 	cmNameSuffix = "%s-pgbackrest-config"
 
-	// suffix used with postgrescluster name for associated configmap.
+	// suffix used with ivorycluster name for associated configmap.
 	// for instance, if the cluster is named 'mycluster', the
 	// configmap will be named 'mycluster-ssh-config'
 	// Deprecated: Repository hosts use mTLS for encryption, authentication, and authorization.
 	// TODO(tjmoore4): Once we no longer need this for cleanup purposes, this should be removed.
 	sshCMNameSuffix = "%s-ssh-config"
 
-	// suffix used with postgrescluster name for associated secret.
+	// suffix used with ivorycluster name for associated secret.
 	// for instance, if the cluster is named 'mycluster', the
 	// secret will be named 'mycluster-ssh'
 	// Deprecated: Repository hosts use mTLS for encryption, authentication, and authorization.
@@ -180,7 +180,7 @@ const (
 	sshSecretNameSuffix = "%s-ssh"
 
 	// RestoreConfigCopySuffix is the suffix used for ConfigMap or Secret configuration
-	// resources needed when restoring from a PostgresCluster data source. If, for
+	// resources needed when restoring from a IvoryCluster data source. If, for
 	// example, a Secret is named 'mysecret' and is the first item in the configuration
 	// slice, the copied Secret will be named 'mysecret-restorecopy-0'
 	RestoreConfigCopySuffix = "%s-restorecopy-%d"
@@ -194,7 +194,7 @@ func AsObjectKey(m metav1.ObjectMeta) client.ObjectKey {
 
 // ClusterConfigMap returns the ObjectMeta necessary to lookup
 // cluster's shared ConfigMap.
-func ClusterConfigMap(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func ClusterConfigMap(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-config",
@@ -202,8 +202,8 @@ func ClusterConfigMap(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // ClusterInstanceRBAC returns the ObjectMeta necessary to lookup the
-// ServiceAccount, Role, and RoleBinding for cluster's PostgreSQL instances.
-func ClusterInstanceRBAC(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+// ServiceAccount, Role, and RoleBinding for cluster's IvorySQL instances.
+func ClusterInstanceRBAC(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-instance",
@@ -212,7 +212,7 @@ func ClusterInstanceRBAC(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 
 // ClusterPGAdmin returns the ObjectMeta necessary to lookup the ConfigMap,
 // Service, StatefulSet, or Volume for the cluster's pgAdmin user interface.
-func ClusterPGAdmin(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func ClusterPGAdmin(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-pgadmin",
@@ -222,7 +222,7 @@ func ClusterPGAdmin(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 // ClusterPGBouncer returns the ObjectMeta necessary to lookup the ConfigMap,
 // Deployment, Secret, PodDisruptionBudget or Service that is cluster's
 // PgBouncer proxy.
-func ClusterPGBouncer(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func ClusterPGBouncer(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-pgbouncer",
@@ -231,7 +231,7 @@ func ClusterPGBouncer(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 
 // ClusterPodService returns the ObjectMeta necessary to lookup the Service
 // that is responsible for the network identity of Pods.
-func ClusterPodService(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func ClusterPodService(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	// The hyphen below ensures that the DNS name will not be interpreted as a
 	// top-level domain. Partially qualified requests for "{pod}.{cluster}-pods"
 	// should not leave the Kubernetes cluster, and if they do they are less
@@ -243,8 +243,8 @@ func ClusterPodService(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // ClusterPrimaryService returns the ObjectMeta necessary to lookup the Service
-// that exposes the PostgreSQL primary instance.
-func ClusterPrimaryService(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+// that exposes the IvorySQL primary instance.
+func ClusterPrimaryService(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-primary",
@@ -252,8 +252,8 @@ func ClusterPrimaryService(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // ClusterReplicaService returns the ObjectMeta necessary to lookup the Service
-// that exposes PostgreSQL replica instances.
-func ClusterReplicaService(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+// that exposes IvorySQL replica instances.
+func ClusterReplicaService(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-replicas",
@@ -262,7 +262,7 @@ func ClusterReplicaService(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 
 // GenerateInstance returns a random name for a member of cluster and set.
 func GenerateInstance(
-	cluster *v1beta1.PostgresCluster, set *v1beta1.PostgresInstanceSetSpec,
+	cluster *v1beta1.IvoryCluster, set *v1beta1.IvoryInstanceSetSpec,
 ) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
@@ -274,7 +274,7 @@ func GenerateInstance(
 // GenerateInstance above. The stable name is based on a four character
 // hash of the cluster name and instance set name
 func GenerateStartupInstance(
-	cluster *v1beta1.PostgresCluster, set *v1beta1.PostgresInstanceSetSpec,
+	cluster *v1beta1.IvoryCluster, set *v1beta1.IvoryInstanceSetSpec,
 ) metav1.ObjectMeta {
 	// Calculate a stable name that's shaped like GenerateInstance above.
 	// hash.Hash.Write never returns an error: https://pkg.go.dev/hash#Hash.
@@ -308,17 +308,17 @@ func InstanceCertificates(instance metav1.Object) metav1.ObjectMeta {
 
 // InstanceSet returns the ObjectMeta necessary to lookup the objects
 // associated with a single instance set. Includes PodDisruptionBudgets
-func InstanceSet(cluster *v1beta1.PostgresCluster,
-	set *v1beta1.PostgresInstanceSetSpec) metav1.ObjectMeta {
+func InstanceSet(cluster *v1beta1.IvoryCluster,
+	set *v1beta1.IvoryInstanceSetSpec) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      cluster.Name + "-set-" + set.Name,
 		Namespace: cluster.Namespace,
 	}
 }
 
-// InstancePostgresDataVolume returns the ObjectMeta for the PostgreSQL data
+// InstanceIvoryDataVolume returns the ObjectMeta for the IvorySQL data
 // volume for instance.
-func InstancePostgresDataVolume(instance *appsv1.StatefulSet) metav1.ObjectMeta {
+func InstanceIvoryDataVolume(instance *appsv1.StatefulSet) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: instance.GetNamespace(),
 		Name:      instance.GetName() + "-pgdata",
@@ -336,9 +336,9 @@ func InstanceTablespaceDataVolume(instance *appsv1.StatefulSet, tablespaceName s
 	}
 }
 
-// InstancePostgresWALVolume returns the ObjectMeta for the PostgreSQL WAL
+// InstanceIvoryWALVolume returns the ObjectMeta for the IvorySQL WAL
 // volume for instance.
-func InstancePostgresWALVolume(instance *appsv1.StatefulSet) metav1.ObjectMeta {
+func InstanceIvoryWALVolume(instance *appsv1.StatefulSet) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: instance.GetNamespace(),
 		Name:      instance.GetName() + "-pgwal",
@@ -347,7 +347,7 @@ func InstancePostgresWALVolume(instance *appsv1.StatefulSet) metav1.ObjectMeta {
 
 // MonitoringUserSecret returns ObjectMeta necessary to lookup the Secret
 // containing authentication credentials for monitoring tools.
-func MonitoringUserSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func MonitoringUserSecret(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-monitoring",
@@ -357,7 +357,7 @@ func MonitoringUserSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 // ExporterWebConfigMap returns ObjectMeta necessary to lookup and create the
 // exporter web configmap. This configmap is used to configure the exporter
 // web server.
-func ExporterWebConfigMap(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func ExporterWebConfigMap(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-exporter-web-config",
@@ -365,17 +365,17 @@ func ExporterWebConfigMap(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // OperatorConfigurationSecret returns the ObjectMeta necessary to lookup the
-// Secret containing PGO configuration.
+// Secret containing IVO configuration.
 func OperatorConfigurationSecret() metav1.ObjectMeta {
 	return metav1.ObjectMeta{
-		Namespace: config.PGONamespace(),
-		Name:      "pgo-config",
+		Namespace: config.IVYONamespace(),
+		Name:      "ivyo-config",
 	}
 }
 
 // ReplicationClientCertSecret returns ObjectMeta necessary to lookup the Secret
 // containing the Patroni client authentication certificate information.
-func ReplicationClientCertSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func ReplicationClientCertSecret(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-replication-cert",
@@ -385,7 +385,7 @@ func ReplicationClientCertSecret(cluster *v1beta1.PostgresCluster) metav1.Object
 // PatroniDistributedConfiguration returns the ObjectMeta necessary to lookup
 // the DCS created by Patroni for cluster. This same name is used for both
 // ConfigMap and Endpoints. See Patroni DCS "config_path".
-func PatroniDistributedConfiguration(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PatroniDistributedConfiguration(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      PatroniScope(cluster) + "-config",
@@ -395,7 +395,7 @@ func PatroniDistributedConfiguration(cluster *v1beta1.PostgresCluster) metav1.Ob
 // PatroniLeaderConfigMap returns the ObjectMeta necessary to lookup the
 // ConfigMap created by Patroni for the leader election of cluster.
 // See Patroni DCS "leader_path".
-func PatroniLeaderConfigMap(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PatroniLeaderConfigMap(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      PatroniScope(cluster) + "-leader",
@@ -405,7 +405,7 @@ func PatroniLeaderConfigMap(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta 
 // PatroniLeaderEndpoints returns the ObjectMeta necessary to lookup the
 // Endpoints created by Patroni for the leader election of cluster.
 // See Patroni DCS "leader_path".
-func PatroniLeaderEndpoints(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PatroniLeaderEndpoints(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      PatroniScope(cluster),
@@ -413,14 +413,14 @@ func PatroniLeaderEndpoints(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta 
 }
 
 // PatroniScope returns the "scope" Patroni uses for cluster.
-func PatroniScope(cluster *v1beta1.PostgresCluster) string {
+func PatroniScope(cluster *v1beta1.IvoryCluster) string {
 	return cluster.Name + "-ha"
 }
 
 // PatroniTrigger returns the ObjectMeta necessary to lookup the ConfigMap or
 // Endpoints Patroni creates for cluster to initiate a controlled change of the
 // leader. See Patroni DCS "failover_path".
-func PatroniTrigger(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PatroniTrigger(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      PatroniScope(cluster) + "-failover",
@@ -428,7 +428,7 @@ func PatroniTrigger(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // PGBackRestConfig returns the ObjectMeta for a pgBackRest ConfigMap
-func PGBackRestConfig(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PGBackRestConfig(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.GetNamespace(),
 		Name:      fmt.Sprintf(cmNameSuffix, cluster.GetName()),
@@ -437,7 +437,7 @@ func PGBackRestConfig(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 
 // PGBackRestBackupJob returns the ObjectMeta for the pgBackRest backup Job utilized
 // to create replicas using pgBackRest
-func PGBackRestBackupJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PGBackRestBackupJob(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      cluster.GetName() + "-backup-" + rand.String(4),
 		Namespace: cluster.GetNamespace(),
@@ -445,7 +445,7 @@ func PGBackRestBackupJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // PGBackRestCronJob returns the ObjectMeta for a pgBackRest CronJob
-func PGBackRestCronJob(cluster *v1beta1.PostgresCluster, backuptype, repoName string) metav1.ObjectMeta {
+func PGBackRestCronJob(cluster *v1beta1.IvoryCluster, backuptype, repoName string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.GetNamespace(),
 		Name:      cluster.Name + "-" + repoName + "-" + backuptype,
@@ -453,7 +453,7 @@ func PGBackRestCronJob(cluster *v1beta1.PostgresCluster, backuptype, repoName st
 }
 
 // PGBackRestRestoreJob returns the ObjectMeta for a pgBackRest restore Job
-func PGBackRestRestoreJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PGBackRestRestoreJob(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.GetNamespace(),
 		Name:      cluster.Name + "-pgbackrest-restore",
@@ -462,7 +462,7 @@ func PGBackRestRestoreJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 
 // PGBackRestRBAC returns the ObjectMeta necessary to lookup the ServiceAccount, Role, and
 // RoleBinding for pgBackRest Jobs
-func PGBackRestRBAC(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PGBackRestRBAC(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-pgbackrest",
@@ -470,7 +470,7 @@ func PGBackRestRBAC(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // PGBackRestRepoVolume returns the ObjectMeta for a pgBackRest repository volume
-func PGBackRestRepoVolume(cluster *v1beta1.PostgresCluster,
+func PGBackRestRepoVolume(cluster *v1beta1.IvoryCluster,
 	repoName string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      fmt.Sprintf("%s-%s", cluster.GetName(), repoName),
@@ -481,7 +481,7 @@ func PGBackRestRepoVolume(cluster *v1beta1.PostgresCluster,
 // PGBackRestSSHConfig returns the ObjectMeta for a pgBackRest SSHD ConfigMap
 // Deprecated: Repository hosts use mTLS for encryption, authentication, and authorization.
 // TODO(tjmoore4): Once we no longer need this for cleanup purposes, this should be removed.
-func PGBackRestSSHConfig(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PGBackRestSSHConfig(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      fmt.Sprintf(sshCMNameSuffix, cluster.GetName()),
 		Namespace: cluster.GetNamespace(),
@@ -491,7 +491,7 @@ func PGBackRestSSHConfig(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 // PGBackRestSSHSecret returns the ObjectMeta for a pgBackRest SSHD Secret
 // Deprecated: Repository hosts use mTLS for encryption, authentication, and authorization.
 // TODO(tjmoore4): Once we no longer need this for cleanup purposes, this should be removed.
-func PGBackRestSSHSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PGBackRestSSHSecret(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      fmt.Sprintf(sshSecretNameSuffix, cluster.GetName()),
 		Namespace: cluster.GetNamespace(),
@@ -499,35 +499,35 @@ func PGBackRestSSHSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // PGBackRestSecret returns the ObjectMeta for a pgBackRest Secret
-func PGBackRestSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func PGBackRestSecret(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Name:      cluster.GetName() + "-pgbackrest",
 		Namespace: cluster.GetNamespace(),
 	}
 }
 
-// DeprecatedPostgresUserSecret returns the ObjectMeta necessary to lookup the
-// old Secret containing the default Postgres user and connection information.
-// Use PostgresUserSecret instead.
-func DeprecatedPostgresUserSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+// DeprecatedIvoryUserSecret returns the ObjectMeta necessary to lookup the
+// old Secret containing the default Ivory user and connection information.
+// Use IvoryUserSecret instead.
+func DeprecatedIvoryUserSecret(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-pguser",
 	}
 }
 
-// PostgresUserSecret returns the ObjectMeta necessary to lookup a Secret
-// containing a PostgreSQL user and its connection information.
-func PostgresUserSecret(cluster *v1beta1.PostgresCluster, username string) metav1.ObjectMeta {
+// IvoryUserSecret returns the ObjectMeta necessary to lookup a Secret
+// containing a IvorySQL user and its connection information.
+func IvoryUserSecret(cluster *v1beta1.IvoryCluster, username string) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-pguser-" + username,
 	}
 }
 
-// PostgresTLSSecret returns the ObjectMeta necessary to lookup the Secret
-// containing the default Postgres TLS certificates and key
-func PostgresTLSSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+// IvoryTLSSecret returns the ObjectMeta necessary to lookup the Secret
+// containing the default Ivory TLS certificates and key
+func IvoryTLSSecret(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.Namespace,
 		Name:      cluster.Name + "-cluster-cert",
@@ -535,7 +535,7 @@ func PostgresTLSSecret(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // MovePGDataDirJob returns the ObjectMeta for a pgData directory move Job
-func MovePGDataDirJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func MovePGDataDirJob(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.GetNamespace(),
 		Name:      cluster.Name + "-move-pgdata-dir",
@@ -543,7 +543,7 @@ func MovePGDataDirJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // MovePGWALDirJob returns the ObjectMeta for a pg_wal directory move Job
-func MovePGWALDirJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func MovePGWALDirJob(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.GetNamespace(),
 		Name:      cluster.Name + "-move-pgwal-dir",
@@ -551,17 +551,17 @@ func MovePGWALDirJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
 }
 
 // MovePGBackRestRepoDirJob returns the ObjectMeta for a pgBackRest repo directory move Job
-func MovePGBackRestRepoDirJob(cluster *v1beta1.PostgresCluster) metav1.ObjectMeta {
+func MovePGBackRestRepoDirJob(cluster *v1beta1.IvoryCluster) metav1.ObjectMeta {
 	return metav1.ObjectMeta{
 		Namespace: cluster.GetNamespace(),
 		Name:      cluster.Name + "-move-pgbackrest-repo-dir",
 	}
 }
 
-// UpgradeCheckConfigMap returns the ObjectMeta for the PGO ConfigMap
+// UpgradeCheckConfigMap returns the ObjectMeta for the IVO ConfigMap
 func UpgradeCheckConfigMap() metav1.ObjectMeta {
 	return metav1.ObjectMeta{
-		Namespace: config.PGONamespace(),
-		Name:      "pgo-upgrade-check",
+		Namespace: config.IVYONamespace(),
+		Name:      "ivyo-upgrade-check",
 	}
 }

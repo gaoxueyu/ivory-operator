@@ -1,5 +1,5 @@
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: init-pgbackrest
 status:
@@ -27,8 +27,8 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: init-pgbackrest
-    postgres-operator.crunchydata.com/pgbackrest-backup: replica-create
-    postgres-operator.crunchydata.com/pgbackrest-repo: repo1
+    ivory-operator.highgo.com/cluster: init-pgbackrest
+    ivory-operator.highgo.com/pgbackrest-backup: replica-create
+    ivory-operator.highgo.com/pgbackrest-repo: repo1
 status:
   succeeded: 1

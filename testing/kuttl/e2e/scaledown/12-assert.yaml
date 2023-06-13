@@ -1,5 +1,5 @@
-apiVersion: postgres-operator.crunchydata.com/v1beta1
-kind: PostgresCluster
+apiVersion: ivory-operator.highgo.com/v1beta1
+kind: IvoryCluster
 metadata:
   name: scaledown1
 status:
@@ -13,9 +13,9 @@ apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    postgres-operator.crunchydata.com/cluster: scaledown1
-    postgres-operator.crunchydata.com/instance-set: instance1
-    postgres-operator.crunchydata.com/role: master
+    ivory-operator.highgo.com/cluster: scaledown1
+    ivory-operator.highgo.com/instance-set: instance1
+    ivory-operator.highgo.com/role: master
     testing/role-before: master
 status:
   phase: Running

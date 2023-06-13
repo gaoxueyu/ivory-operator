@@ -9,8 +9,8 @@ commands:
           PRIMARY=$(
             kubectl get pod --namespace "${NAMESPACE}" \
               --output name --selector '
-                postgres-operator.crunchydata.com/cluster=cluster-migrate,
-                postgres-operator.crunchydata.com/role=master'
+                ivory-operator.highgo.com/cluster=cluster-migrate,
+                ivory-operator.highgo.com/role=master'
           )
         done
 

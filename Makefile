@@ -19,8 +19,7 @@ CRUNCHY_POSTGRES_EXPORTER_PG_FULL_VERSION ?= 15.2
 PGMONITOR_DIR ?= hack/tools/pgmonitor
 PGMONITOR_VERSION ?= 'v4.8.0'
 POSTGRES_EXPORTER_VERSION ?= 0.10.1
-POSTGRES_EXPORTER_ARCHITECTURE ?= amd64
-POSTGRES_EXPORTER_URL ?= https://github.com/prometheus-community/postgres_exporter/releases/download/v${POSTGRES_EXPORTER_VERSION}/postgres_exporter-${POSTGRES_EXPORTER_VERSION}.linux-${POSTGRES_EXPORTER_ARCHITECTURE}.tar.gz
+POSTGRES_EXPORTER_URL ?= https://github.com/prometheus-community/postgres_exporter/releases/download/v${POSTGRES_EXPORTER_VERSION}/postgres_exporter-${POSTGRES_EXPORTER_VERSION}.linux-amd64.tar.gz
 
 # Buildah's "build" used to be "bud". Use the alias to be compatible for a while.
 BUILDAH_BUILD ?= buildah bud
@@ -133,17 +132,17 @@ undeploy: ## Undeploy the PostgreSQL Operator
 
 .PHONY: deploy-dev
 deploy-dev: ## Deploy the PostgreSQL Operator locally
-deploy-dev: PGO_FEATURE_GATES ?= "TablespaceVolumes=true"
+deploy-dev: IVYO_FEATURE_GATES ?= "TablespaceVolumes=true"
 deploy-dev: build-postgres-operator
 deploy-dev: createnamespaces
 	kubectl apply --server-side -k ./config/dev
-	hack/create-kubeconfig.sh postgres-operator pgo
+	hack/create-kubeconfig.sh ivory-operator pgo
 	env \
 		CRUNCHY_DEBUG=true \
-		PGO_FEATURE_GATES="${PGO_FEATURE_GATES}" \
+		IVYO_FEATURE_GATES="${IVYO_FEATURE_GATES}" \
 		CHECK_FOR_UPGRADES='$(if $(CHECK_FOR_UPGRADES),$(CHECK_FOR_UPGRADES),false)' \
-		KUBECONFIG=hack/.kube/postgres-operator/pgo \
-		PGO_NAMESPACE='postgres-operator' \
+		KUBECONFIG=hack/.kube/ivory-operator/pgo \
+		IVYO_NAMESPACE='ivory-operator' \
 		$(shell kubectl kustomize ./config/dev | \
 			sed -ne '/^kind: Deployment/,/^---/ { \
 				/RELATED_IMAGE_/ { N; s,.*\(RELATED_[^[:space:]]*\).*value:[[:space:]]*\([^[:space:]]*\),\1="\2",; p; }; \
@@ -155,7 +154,7 @@ deploy-dev: createnamespaces
 .PHONY: build-postgres-operator
 build-postgres-operator: ## Build the postgres-operator binary
 	$(GO_BUILD) -ldflags '-X "main.versionString=$(PGO_VERSION)"' \
-		-o bin/postgres-operator ./cmd/postgres-operator
+		-o bin/postgres-operator ./cmd/ivory-operator
 
 ##@ Build - Images
 .PHONY: build-crunchy-postgres-exporter-image
@@ -167,7 +166,7 @@ build-crunchy-postgres-exporter-image: build/crunchy-postgres-exporter/Dockerfil
 		$(warning WARNING: old buildah does not invalidate its cache for changed labels: \
 			https://github.com/containers/buildah/issues/3517))
 	$(if $(IMAGE_TAG),,	$(error missing IMAGE_TAG))
-	$(strip $(BUILDAH_BUILD)) \
+	$(BUILDAH_BUILD) \
 		--tag $(BUILDAH_TRANSPORT)$(CRUNCHY_POSTGRES_EXPORTER_IMAGE_PREFIX)/$(CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME):$(IMAGE_TAG) \
 		--build-arg PGVERSION=$(CRUNCHY_POSTGRES_EXPORTER_PG_VERSION) \
 		--label name='$(CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME)' \
@@ -207,7 +206,7 @@ build-postgres-operator-image: build/postgres-operator/Dockerfile
 		$(warning WARNING: old buildah does not invalidate its cache for changed labels: \
 			https://github.com/containers/buildah/issues/3517))
 	$(if $(IMAGE_TAG),,	$(error missing IMAGE_TAG))
-	$(strip $(BUILDAH_BUILD)) \
+	$(BUILDAH_BUILD) \
 		--tag $(BUILDAH_TRANSPORT)$(PGO_IMAGE_PREFIX)/$(PGO_IMAGE_NAME):$(IMAGE_TAG) \
 		--label name='$(PGO_IMAGE_NAME)' \
 		--label build-date='$(PGO_IMAGE_TIMESTAMP)' \
@@ -248,7 +247,7 @@ check-envtest: SHELL = bash
 check-envtest:
 	GOBIN='$(CURDIR)/hack/tools' $(GO) install sigs.k8s.io/controller-runtime/tools/setup-envtest@latest
 	@$(ENVTEST_USE) --print=overview && echo
-	source <($(ENVTEST_USE) --print=env) && PGO_NAMESPACE="postgres-operator" $(GO_TEST) -count=1 -cover -tags=envtest ./...
+	source <($(ENVTEST_USE) --print=env) && IVYO_NAMESPACE="ivory-operator" $(GO_TEST) -count=1 -cover -tags=envtest ./...
 
 # The "PGO_TEST_TIMEOUT_SCALE" environment variable (default: 1) can be set to a
 # positive number that extends test timeouts. The following runs tests with 
@@ -258,7 +257,7 @@ check-envtest:
 check-envtest-existing: ## Run check using envtest and an existing kube api
 check-envtest-existing: createnamespaces
 	kubectl apply --server-side -k ./config/dev
-	USE_EXISTING_CLUSTER=true PGO_NAMESPACE="postgres-operator" $(GO_TEST) -count=1 -cover -p=1 -tags=envtest ./...
+	USE_EXISTING_CLUSTER=true IVYO_NAMESPACE="ivory-operator" $(GO_TEST) -count=1 -cover -p=1 -tags=envtest ./...
 	kubectl delete -k ./config/dev
 
 # Expects operator to be running
@@ -315,15 +314,15 @@ generate-crd: ## Generate crd
 	GOBIN='$(CURDIR)/hack/tools' ./hack/controller-generator.sh \
 		crd:crdVersions='v1' \
 		paths='./pkg/apis/...' \
-		output:dir='build/crd/postgresclusters/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
+		output:dir='build/crd/ivoryclusters/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
 	@
 	GOBIN='$(CURDIR)/hack/tools' ./hack/controller-generator.sh \
 		crd:crdVersions='v1' \
 		paths='./pkg/apis/...' \
-		output:dir='build/crd/pgupgrades/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
+		output:dir='build/crd/ivyupgrades/generated' # build/crd/{plural}/generated/{group}_{plural}.yaml
 	@
-	kubectl kustomize ./build/crd/postgresclusters > ./config/crd/bases/postgres-operator.crunchydata.com_postgresclusters.yaml
-	kubectl kustomize ./build/crd/pgupgrades > ./config/crd/bases/postgres-operator.crunchydata.com_pgupgrades.yaml
+	kubectl kustomize ./build/crd/ivoryclusters > ./config/crd/bases/ivory-operator.highgo.com_ivoryclusters.yaml
+	kubectl kustomize ./build/crd/ivyupgrades > ./config/crd/bases/ivory-operator.highgo.com_ivyupgrades.yaml
 
 .PHONY: generate-crd-docs
 generate-crd-docs: ## Generate crd-docs
@@ -337,7 +336,7 @@ generate-crd-docs: ## Generate crd-docs
 generate-deepcopy: ## Generate deepcopy functions
 	GOBIN='$(CURDIR)/hack/tools' ./hack/controller-generator.sh \
 		object:headerFile='hack/boilerplate.go.txt' \
-		paths='./pkg/apis/postgres-operator.crunchydata.com/...'
+		paths='./pkg/apis/ivory-operator.highgo.com/...'
 
 .PHONY: generate-rbac
 generate-rbac: ## Generate rbac
@@ -366,10 +365,11 @@ release-postgres-operator-image-labels:
 .PHONY: release-crunchy-postgres-exporter-image release-crunchy-postgres-exporter-image-labels
 release-crunchy-postgres-exporter-image: ## Build the postgres-operator image and all its prerequisites
 release-crunchy-postgres-exporter-image: release-crunchy-postgres-exporter-image-labels
-release-crunchy-postgres-exporter-image: build-crunchy-postgres-exporter-image
+release-crunchy-postgres-exporter-image: licenses
+release-crunchy-postgres-exporter-image: build-postgres-operator-image
 release-crunchy-postgres-exporter-image-labels:
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_DESCRIPTION),,	$(error missing CRUNCHY_POSTGRES_EXPORTER_DESCRIPTION))
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_MAINTAINER),, 	$(error missing CRUNCHY_POSTGRES_EXPORTER_MAINTAINER))
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME),,  $(error missing CRUNCHY_POSTGRES_EXPORTER_IMAGE_NAME))
-	$(if $(CRUNCHY_POSTGRES_EXPORTER_SUMMARY),,    	$(error missing CRUNCHY_POSTGRES_EXPORTER_SUMMARY))
-	$(if $(PGO_VERSION),,                           $(error missing PGO_VERSION))
+	$(if $(PGO_IMAGE_DESCRIPTION),,	$(error missing PGO_IMAGE_DESCRIPTION))
+	$(if $(PGO_IMAGE_MAINTAINER),, 	$(error missing PGO_IMAGE_MAINTAINER))
+	$(if $(PGO_IMAGE_NAME),,       	$(error missing PGO_IMAGE_NAME))
+	$(if $(PGO_IMAGE_SUMMARY),,    	$(error missing PGO_IMAGE_SUMMARY))
+	$(if $(PGO_VERSION),,			$(error missing PGO_VERSION))
