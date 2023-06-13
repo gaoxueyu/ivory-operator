@@ -168,7 +168,7 @@ func (r *Reconciler) reconcilePGBouncerInIvorySQL(
 		return err
 	}
 
-	if revision == cluster.Status.Proxy.PGBouncer.IvorySQLRevision {
+	if revision == cluster.Status.Proxy.PGBouncer.PostgresRevision {
 		// The necessary SQL has already been applied; there's nothing more to do.
 
 		// TODO(cbandy): Give the user a way to trigger execution regardless.
@@ -186,7 +186,7 @@ func (r *Reconciler) reconcilePGBouncerInIvorySQL(
 		})
 	}
 	if err == nil {
-		cluster.Status.Proxy.PGBouncer.IvorySQLRevision = revision
+		cluster.Status.Proxy.PGBouncer.PostgresRevision = revision
 	}
 
 	return err

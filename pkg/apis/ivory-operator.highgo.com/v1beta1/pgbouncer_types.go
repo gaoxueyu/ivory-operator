@@ -169,7 +169,7 @@ type PGBouncerPodStatus struct {
 
 	// Identifies the revision of PgBouncer assets that have been installed into
 	// IvorySQL.
-	IvorySQLRevision string `json:"ivoryRevision,omitempty"`
+	PostgresRevision string `json:"postgresRevision,omitempty"`
 
 	// Total number of ready pods.
 	ReadyReplicas int32 `json:"readyReplicas,omitempty"`

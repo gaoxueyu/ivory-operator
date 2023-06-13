@@ -15407,7 +15407,7 @@ spec:
                 properties:
                   pgBouncer:
                     properties:
-                      ivoryRevision:
+                      postgresRevision:
                         description: Identifies the revision of PgBouncer assets that
                           have been installed into IvorySQL.
                         type: string

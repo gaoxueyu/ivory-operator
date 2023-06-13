@@ -984,7 +984,7 @@ func (r *Reconciler) prepareForRestore(ctx context.Context,
 		cluster.Status.Patroni.SystemIdentifier = ""
 		// the restore will change the contents of the database, so the pgbouncer and exporter hashes
 		// are no longer valid
-		cluster.Status.Proxy.PGBouncer.IvorySQLRevision = ""
+		cluster.Status.Proxy.PGBouncer.PostgresRevision = ""
 		cluster.Status.Monitoring.ExporterConfiguration = ""
 		return nil
 	}
