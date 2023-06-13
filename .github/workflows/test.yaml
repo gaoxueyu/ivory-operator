@@ -83,6 +83,7 @@ jobs:
           retention-days: 1
 
   kuttl-k3d:
+    if: "${{ github.repository == 'CrunchyData/postgres-operator' }}"
     runs-on: ubuntu-20.04
     needs: [go-test]
     strategy:
@@ -126,11 +127,11 @@ jobs:
             --env 'RELATED_IMAGE_PGBOUNCER=registry.developers.crunchydata.com/crunchydata/crunchy-pgbouncer:ubi8-1.18-0' \
             --env 'RELATED_IMAGE_PGEXPORTER=registry.developers.crunchydata.com/crunchydata/crunchy-postgres-exporter:ubi8-5.3.1-0' \
             --env 'RELATED_IMAGE_PGUPGRADE=registry.developers.crunchydata.com/crunchydata/crunchy-upgrade:ubi8-5.3.1-0' \
-            --env 'RELATED_IMAGE_POSTGRES_14=registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-14.7-0' \
-            --env 'RELATED_IMAGE_POSTGRES_14_GIS_3.1=registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis:ubi8-14.7-3.1-0' \
-            --env 'RELATED_IMAGE_POSTGRES_15=registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-15.2-0' \
-            --env 'RELATED_IMAGE_POSTGRES_15_GIS_3.3=registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis:ubi8-15.2-3.3-0' \
-            --env 'PGO_FEATURE_GATES=TablespaceVolumes=true' \
+            --env 'RELATED_IMAGE_IVORY_14=registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-14.7-0' \
+            --env 'RELATED_IMAGE_IVORY_14_GIS_3.1=registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis:ubi8-14.7-3.1-0' \
+            --env 'RELATED_IMAGE_IVORY_15=registry.developers.crunchydata.com/crunchydata/crunchy-postgres:ubi8-15.2-0' \
+            --env 'RELATED_IMAGE_IVORY_15_GIS_3.3=registry.developers.crunchydata.com/crunchydata/crunchy-postgres-gis:ubi8-15.2-3.3-0' \
+            --env 'IVYO_FEATURE_GATES=TablespaceVolumes=true' \
             --name 'ivory-operator' ubuntu \
             postgres-operator
       - name: Install kuttl

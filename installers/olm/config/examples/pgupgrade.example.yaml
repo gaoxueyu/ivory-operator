@@ -3,6 +3,6 @@ kind: IvyUpgrade
 metadata:
   name: example-upgrade
 spec:
-  postgresClusterName: example
-  fromPostgresVersion: 14
-  toPostgresVersion: 15
+  ivoryClusterName: example
+  fromIvoryVersion: 14
+  toIvoryVersion: 15
